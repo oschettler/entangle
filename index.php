@@ -21,3 +21,5 @@ on('GET', '/', function () {
     'page_title' => config('site.title'),
   ));
 });
+
+dispatch();

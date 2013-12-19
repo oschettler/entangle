@@ -7,21 +7,10 @@
     <link rel="stylesheet" href="//netdna.bootstrapcdn.com/bootstrap/3.0.0/css/bootstrap.min.css">
     <link rel="stylesheet" href="//netdna.bootstrapcdn.com/bootstrap/3.0.0/css/bootstrap-theme.min.css">
     <link rel="stylesheet" href="/css/styles.css">
-    <link rel="stylesheet" href="/concord/concord.css"/>
     <link href="//netdna.bootstrapcdn.com/font-awesome/3.2.1/css/font-awesome.css" rel="stylesheet">
     <script src="//code.jquery.com/jquery-1.10.2.min.js"></script>
     <script src="//netdna.bootstrapcdn.com/bootstrap/3.0.0/js/bootstrap.min.js"></script>
-    <script src="/concord/concord.js"></script>
-    <script src="/concord/concordUtils.js"></script>
-    <script src="/riotjs/jquery.riot.min.js"></script>
-
-    <script>
-    jQuery(function ($) {
-      setTimeout(function () {
-        $('.alert').slideUp('fast');
-      }, 3000);
-    });
-    </script>
+    <script src="/js/scripts.js"></script>
   </head>
   <body>
     <?php echo partial('alert'); ?>

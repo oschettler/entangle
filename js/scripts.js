@@ -11,29 +11,48 @@ jQuery(function ($) {
     c = document.getElementById("spans"),
     ctx = c.getContext("2d");
 
-  ctx.lineWidth = 6;
-  ctx.font = "30px Arial";
-  
   var top = $('#dates-1').get(0).getBoundingClientRect();
   
   $spans = $('#spans');
   $spans.attr('width', $spans.width());
   $spans.attr('height', $spans.height());
   
-  $('span.date-from').each(function (i) {
+  ctx.font = "16px Arial";
+  ctx.lineWidth = 2;
+  
+  var intervals = {};
+  
+  $('span.date-end').each(function (i) {
     var 
-      rect = $(this).get(0).getBoundingClientRect(),
-      x = 2 + 2*i;
+      here = $(this).get(0).getBoundingClientRect(),
+      id = $(this).attr('x-id'),
+      there = $('span.date-from[x-id="' + id + '"]').get(0).getBoundingClientRect(),
+      y_top = here.bottom - top.top,
+      y_bottom = there.top - top.top,
+      x = 0;
 
-    ctx.fillText(i, x + 10, rect.top - top.top);
-    ctx.moveTo(2 + 2*i, rect.top - top.top);
-    ctx.lineTo(2 + 2*i, rect.bottom - top.top);
+    // Find free horizontal slot
+    for (var y in intervals) {
+      if (intervals[y].y > y_top) {
+        x = intervals[y].x + 1;
+      }
+    }
+    //ctx.fillText(i + ': x=' + x, 10 + 6 * x, y_top);
+
+    intervals[y_top] = { y: y_bottom, x: x };
+
+    x = 4 + 4 * x;
+
+    ctx.moveTo(x - 2, y_top);
+    ctx.lineTo(x, y_top);
+
+    ctx.moveTo(x, y_top);
+
+    ctx.lineTo(x, y_bottom);
+
+    ctx.moveTo(x, y_bottom);
+    ctx.lineTo(x - 2, y_bottom);
+
     ctx.stroke();
-    
-    /*
-    $(this).siblings('.coord').html(
-      ' i=' + i + ', t=' + (rect.top - top.top) + ', b=' + (rect.bottom - top.top)
-    );
-    */
   });
 });

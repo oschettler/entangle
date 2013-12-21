@@ -26,24 +26,57 @@ on('GET', '/', function () {
     ->find_one();
   
   $timelines = array();
+  $event_timelines = array();
   foreach (ORM::for_table('entangled_timeline')
     ->left_outer_join('timeline', array('entangled_timeline.timeline_id', '=', 'timeline.id'))
     ->where_equal('entangled_timeline.entangled_id', $entangled->id)
     ->find_many() as $timeline) {
-      
+    
+    if (empty($timeline->timelines)) {
+      $timeline->timelines = array();
+    }
+    else {
+      $timeline->timelines = explode(',', $timeline->timelines);
+    }
     $timelines[$timeline->id] = $timeline;
+
+    if (0 == count($timeline->timelines)) {
+      $event_timelines[] = $timeline->id;
+    }
+    else {
+      $event_timelines = array_merge($event_timelines, $timeline->timelines);
+    }
   }
     
   $events = ORM::for_table('event')
     ->select('event.*')
     ->select('location.title', 'location_title')
+    ->select('user.id', 'user_id')
+    ->select('user.realname', 'user_realname')
     ->left_outer_join('location', array('event.location_id', '=', 'location.id'))
-    ->where_in('timeline_id', array_keys($timelines))
+    ->left_outer_join('timeline', array('event.timeline_id', '=', 'timeline.id'))
+    ->left_outer_join('user', array('timeline.user_id', '=', 'user.id'))
+    ->where_in('timeline_id', $event_timelines)
     ->order_by_desc('date_from')
     ->order_by_asc('timeline_id')
     ->find_result_set();
   
   $points = array();
+  $point_count = 0;
+  
+  $points[time()][] = (object)array(
+    'type' => 'now',
+    'title' => '<strong>Heute</strong>',
+    'event' => (object)array(
+      'id' => 'now',
+      'timeline_id' => NULL,
+      'duration' => 1,
+      'duration_unit' => 'd',
+      'user_id' => USER_ID,
+    )
+  );
+  $point_count++;
+  
   foreach ($events as $event) {
     $date_from = strtotime($event->date_from);
 
@@ -92,18 +125,27 @@ on('GET', '/', function () {
       }
     } // duration
 
-    $points[$date_from] = (object)array(
-      'type' => 'from', 
-      'event' => $event,
-    );
-
     if ($date_to) {
-      $points[$date_from]->to = $date_to;
-
-      $points[$date_to] = (object)array(
+      // An interval
+      $points[$date_from][] = (object)array(
+        'type' => 'from', 
+        'event' => $event,
+      );
+      $point_count++;
+  
+      $points[$date_to][] = (object)array(
         'type' => 'to', 
         'event' => $event, 
       );
+      $point_count++;
+    }
+    else {
+      // A single point
+      $points[$date_from][] = (object)array(
+        'type' => 'on', 
+        'event' => $event,
+      );
+      $point_count++;
     }
     
     /*
@@ -121,11 +163,12 @@ on('GET', '/', function () {
           $from['tm_mday'],
           $from['tm_year'] + 1900 + $i
         );
-        $points[$anniversary] = (object)array(
+        $points[$anniversary][] = (object)array(
           'type' => 'anniversary',
           'event' => $event,
           'title' => sprintf($event->anniversary, $i),
         );
+        $point_count++;
       }
       while ($anniversary < $next_year);
     }    
@@ -133,20 +176,12 @@ on('GET', '/', function () {
   } 
   krsort($points, SORT_NUMERIC);
   
-  $i = 0;
-  foreach ($points as $ts => $point) {
-    $point->ix = $i;
-    if ($point->type == 'from' && !empty($point->to)) {
-      $point->to_ix = $points[$point->to]->ix;
-    }
-    $i++;
-  }
-
   render('index', array(
     'site_name' => config('site.name'),
     'page_title' => $entangled->title,
     'timelines' => $timelines,
     'points' => $points,
+    'point_count' => $point_count,
   ));
 });
 

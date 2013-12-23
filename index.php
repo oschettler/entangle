@@ -18,7 +18,33 @@ ORM::configure('return_result_sets', TRUE);
 config('dispatch.views', './views');
 config('source', 'settings.ini');
 
-on('GET', '/', function () {
+/**
+ * Similar to dispatch.scope, but keep values as stack
+ */
+function stack($name, $value = null) {
+
+  static $_stash = array();
+
+  if ($value === null) {
+    return isset($_stash[$name]) ? array_pop($_stash[$name]) : NULL;
+  }
+
+  if (!isset($_stash[$name])) {
+    $_stash[$name] = array();
+  }
+  return array_push($_stash[$name], $value);
+}
+
+prefix('/user', function () { include 'user.php'; });
+
+on('GET', '/', function () { 
+
+  if (!session('user')) {
+    return render('homepage', array(
+      'site_name' => config('site.name'),
+      'page_title' => 'Entangled lifes.',
+    ));
+  }
 
   $entangled = ORM::for_table('entangled')
     ->where_equal('user_id', USER_ID)

@@ -1,0 +1,32 @@
+/**
+ */
+body > div.container {
+  margin-top: 50px;
+  position: relative;
+}
+
+th.dates, td.dates {
+  width: 15%;
+}
+
+th.spans, td.spans {
+  width: 5%;
+}
+
+#spans {
+  width: 100%;
+  height: 100%;
+}
+
+td {
+  vertical-align: top;
+}
+
+#add-event-button {
+  position: absolute;
+  top: 8px;
+  right: 23px;
+  font-weight: bold;
+  font-size: 16px;
+}
+

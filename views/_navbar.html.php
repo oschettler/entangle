@@ -11,28 +11,25 @@
     <div class="navbar-collapse collapse">
       <ul class="nav navbar-nav">
         <li>
-          <a href="http://docs.everid.net/">Documentation</a>
+          <a href="http://docs.entangle.de/">Documentation</a>
         </li>
         <li>
-          <a href="http://docs.everid.net/about.html">About</a>
+          <a href="http://docs.entangle.de/about.html">About</a>
         </li>
       </ul>
       <ul class="nav navbar-nav navbar-right">
         <?php
-        if (!empty($_SESSION['account'])):
-          $account = $_SESSION['account'];
+        if (!empty($_SESSION['user'])):
+          $user = $_SESSION['user'];
           ?>
           <li class="dropdown">
-            <a href="#" class="dropdown-toggle" data-toggle="dropdown"><?php echo $account->username; ?> <b class="caret"></b></a>
+            <a href="#" class="dropdown-toggle" data-toggle="dropdown"><?php echo $user->username; ?> <b class="caret"></b></a>
             <ul class="dropdown-menu">
-              <li>
-                <a href="/github/login">Connect with Github</a>
-              </li>
               <li>
                 <a href="/user/edit">Edit</a>
               </li>
               <li>
-                <a href="/auth/logout">Logout</a>
+                <a href="/user/logout">Logout</a>
               </li>
             </ul>
           </li>
@@ -40,7 +37,7 @@
         else:
         ?>
           <li>
-            <a href="/auth/authorize" title="with Evernote">Login</a>
+            <a href="#" data-toggle="modal" data-target="#login">Login</a>
           </li>
           <?php
         endif;

@@ -1,8 +1,9 @@
-<div class="jumbotron">
-  <h1><?php echo $page_title; ?></h1>
-  <p>Entangle!</p>  
-</div>
+<?php 
+stack('styles', 'timelines'); 
+stack('scripts', 'timelines'); 
+?>
 
+<a id="add-event-button" href="#" data-toggle="modal" data-target="#add-event"><span class="glyphicon glyphicon-plus-sign"></span></a>
 <table class="table table-striped">
   <thead>
     <tr>
@@ -72,12 +73,12 @@
             ?>
             <td class="event">
               <?php
-              if ($point->type == 'to') {
-                echo '<strong>Ende:</strong> ';
-              }
-              
               if ($event->user_id != USER_ID) {
                 echo "{$event->user_realname}: ";
+              }
+              
+              if ($point->type == 'to') {
+                echo '<strong>Ende:</strong> ';
               }
               
               if (!empty($point->title)) {

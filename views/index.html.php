@@ -73,7 +73,7 @@ stack('scripts', 'timelines');
             ?>
             <td class="event">
               <?php
-              if ($event->user_id != USER_ID) {
+              if ($event->user_id != $_SESSION['user']->id) {
                 echo "{$event->user_realname}: ";
               }
               

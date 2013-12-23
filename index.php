@@ -12,11 +12,11 @@ session_start();
 
 require_once 'vendor/autoload.php';
 
-ORM::configure('sqlite:db/entangle.sqlite');
+ORM::configure('sqlite:../db/entangle.sqlite');
 ORM::configure('return_result_sets', TRUE);
 
 config('dispatch.views', './views');
-config('source', 'settings.ini');
+config('source', '../settings.ini');
 
 /**
  * Similar to dispatch.scope, but keep values as stack

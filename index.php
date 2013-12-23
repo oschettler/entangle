@@ -1,7 +1,5 @@
 <?php 
 
-const USER_ID = 1;
-
 ini_set('display_errors', TRUE);
 error_reporting(-1);
 
@@ -47,7 +45,7 @@ on('GET', '/', function () {
   }
 
   $entangled = ORM::for_table('entangled')
-    ->where_equal('user_id', USER_ID)
+    ->where_equal('user_id', $_SESSION['user']->id)
     ->where_equal('title', 'Start')
     ->find_one();
   
@@ -98,7 +96,7 @@ on('GET', '/', function () {
       'timeline_id' => NULL,
       'duration' => 1,
       'duration_unit' => 'd',
-      'user_id' => USER_ID,
+      'user_id' => $_SESSION['user']->id,
     )
   );
   $point_count++;

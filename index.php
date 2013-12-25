@@ -34,6 +34,7 @@ function stack($name, $value = null) {
 }
 
 prefix('/user', function () { include 'user.php'; });
+prefix('/event', function () { include 'event.php'; });
 
 on('GET', '/', function () { 
 
@@ -200,10 +201,18 @@ on('GET', '/', function () {
   } 
   krsort($points, SORT_NUMERIC);
   
+  $named_timelines = ORM::for_table('timeline')
+  	->select_many('timeline.id', 'timeline.user_id', 'timeline.title')
+    ->select('user.realname', 'user_realname')
+    ->left_outer_join('user', array('timeline.user_id', '=', 'user.id'))
+    ->order_by_asc('user_realname', 'title')
+  	->find_result_set();
+
   render('index', array(
     'site_name' => config('site.name'),
     'page_title' => $entangled->title,
     'timelines' => $timelines,
+    'named_timelines' => $named_timelines,
     'points' => $points,
     'point_count' => $point_count,
   ));

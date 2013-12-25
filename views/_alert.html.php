@@ -1,18 +1,12 @@
 <?php
-$msg = flash('error');
-if ($msg) {
+if (empty($class)) {
   $class = 'danger';
 }
-else {
-  $msg = flash('success');
-  $class = 'success';
+if (empty($msg)) {
+  $msg = '';
 }
-
-if ($msg):
-  ?>
-  <div class="alert alert-<?php echo $class; ?>">
-    <a class="close" data-dismiss="alert" href="#" aria-hidden="true">&times;</a>
-    <?php echo $msg; ?>
-  </div>
-  <?php
-endif;
+?>
+<div class="alert alert-<?php echo $class; ?>">
+  <a class="close" data-dismiss="alert" href="#" aria-hidden="true">&times;</a>
+  <span class="message"><?php echo $msg; ?></span>
+</div>

@@ -6,11 +6,15 @@ body > div.container {
 }
 
 th.dates, td.dates {
-  width: 15%;
+  width: 12%;
 }
 
 th.spans, td.spans {
   width: 5%;
+}
+
+th.action, td.action {
+  width: 3%;
 }
 
 #spans {
@@ -20,13 +24,5 @@ th.spans, td.spans {
 
 td {
   vertical-align: top;
-}
-
-#add-event-button {
-  position: absolute;
-  top: 8px;
-  right: 23px;
-  font-weight: bold;
-  font-size: 16px;
 }
 

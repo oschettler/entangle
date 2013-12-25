@@ -27,8 +27,20 @@
     ?>
   </head>
   <body>
-    <?php echo partial('alert'); ?>
-    <?php
+    <?php 
+    $msg = flash('error');
+    if ($msg) {
+      $class = 'danger';
+    }
+    else {
+      $msg = flash('success');
+      $class = 'success';
+    }
+    
+    if ($msg) {
+      echo partial('alert', array('class' => $class, 'msg' => $msg));
+    }
+
     echo partial('navbar', array(
       'site_name' => $site_name,
       'page_title' => $page_title
@@ -40,10 +52,8 @@
     </div>
     
     <?php 
-    echo partial('login');
-    
-    if (!empty($_SESSION['user'])) {
-      echo partial('event');
+    while ($footer = stack('footer')) {
+      echo $footer;
     }
     ?>
   </body>

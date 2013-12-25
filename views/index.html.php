@@ -1,9 +1,9 @@
 <?php 
 stack('styles', 'timelines'); 
-stack('scripts', 'timelines'); 
+stack('scripts', 'timelines');
+stack('footer', partial('event', array('named_timelines' => $named_timelines)));
 ?>
 
-<a id="add-event-button" href="#" data-toggle="modal" data-target="#add-event"><span class="glyphicon glyphicon-plus-sign"></span></a>
 <table class="table table-striped">
   <thead>
     <tr>
@@ -17,6 +17,9 @@ stack('scripts', 'timelines');
         <?php
       }
       ?>
+      <th class="action">
+        <a href="#" data-toggle="modal" data-target="#edit-event"><span class="glyphicon glyphicon-plus-sign"></span></a>
+      </th>
     </tr>
   </thead>
   <tbody>
@@ -104,6 +107,9 @@ stack('scripts', 'timelines');
         
         $i++;
         ?>
+        <td class="action">
+          <a href="#" data-toggle="modal" data-target="#edit-event"><span class="glyphicon glyphicon-pencil"></span></a>
+        </td>
       </tr>
       <?php
     } // point_list per ts

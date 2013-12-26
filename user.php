@@ -32,3 +32,45 @@ on('GET', '/logout', function () {
   flash('success', 'You are logged out');
   redirect('/');
 });
+
+on('GET', '/edit', function () {
+
+  if (empty($_SESSION['user'])) {
+    flash('error', 'Not logged in');
+    redirect('/');
+  }
+
+  $user = ORM::for_table('user')
+    ->find_one($_SESSION['user']->id);
+    
+  $timelines = ORM::for_table('timeline')
+    ->select('timeline.*')
+    ->select('user.realname', 'user_realname')
+    ->left_outer_join('user', array('timeline.user_id', '=', 'user.id'))
+    ->order_by_asc('user_id', 'name')
+    ->find_result_set();
+    
+  $displays = ORM::for_table('entangled_timeline')
+    ->select('timeline.title', 'timeline_title')
+    ->select('entangled.id', 'entangled_id')
+    ->select('entangled.title', 'entangled_title')
+    ->select('entangled.user_id', 'user_id')
+    ->select('user.realname', 'user_realname')
+    ->left_outer_join('timeline', array('entangled_timeline.timeline_id', '=', 'timeline.id'))
+    ->left_outer_join('entangled', array('entangled_timeline.entangled_id', '=', 'entangled.id'))
+    ->left_outer_join('user', array('entangled.user_id', '=', 'user.id'))
+    ->order_by_asc('user.id', 'entangled.id', 'timeline.id')
+    ->find_result_set();
+
+  $locations = ORM::for_table('location')
+    ->order_by_asc('title')
+    ->find_result_set();
+    
+  render('edit', array(
+    'page_title' => 'Edit user',
+    'user' => $user,
+    'timelines' => $timelines,
+    'displays' => $displays,
+    'locations' => $locations,
+  ));
+});

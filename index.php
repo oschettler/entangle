@@ -40,7 +40,6 @@ on('GET', '/', function () {
 
   if (!session('user')) {
     return render('homepage', array(
-      'site_name' => config('site.name'),
       'page_title' => 'Entangled lifes.',
     ));
   }
@@ -209,7 +208,6 @@ on('GET', '/', function () {
   	->find_result_set();
 
   render('index', array(
-    'site_name' => config('site.name'),
     'page_title' => $entangled->title,
     'timelines' => $timelines,
     'named_timelines' => $named_timelines,

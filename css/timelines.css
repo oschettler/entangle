@@ -26,3 +26,6 @@ td {
   vertical-align: top;
 }
 
+a.edit-event {
+  display: none;
+}

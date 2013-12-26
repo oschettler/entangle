@@ -1,10 +1,11 @@
 <?php 
 stack('styles', 'timelines'); 
 stack('scripts', 'timelines');
+//stack('scripts', '//rawgithub.com/markmalek/Fixed-Header-Table/master/jquery.fixedheadertable.min.js');
 stack('footer', partial('event', array('named_timelines' => $named_timelines)));
 ?>
 
-<table class="table table-striped">
+<table class="events table table-striped">
   <thead>
     <tr>
       <th class="dates">Daten</th>
@@ -18,7 +19,7 @@ stack('footer', partial('event', array('named_timelines' => $named_timelines)));
       }
       ?>
       <th class="action">
-        <a href="#" data-toggle="modal" data-target="#edit-event"><span class="glyphicon glyphicon-plus-sign"></span></a>
+        <a class="add-event" href="#"><span class="glyphicon glyphicon-plus-sign"></span></a>
       </th>
     </tr>
   </thead>
@@ -74,7 +75,7 @@ stack('footer', partial('event', array('named_timelines' => $named_timelines)));
           
           if ($tl == 0 && $event->timeline_id == NULL || in_array($event->timeline_id, $event_timelines)) {
             ?>
-            <td class="event">
+            <td class="event"><span data-toggle="popover" data-content="<?php echo !empty($event->description) ? addslashes($event->description) : ''; ?>" data-triger="hover" data-placement="bottom">
               <?php
               if ($event->user_id != $_SESSION['user']->id) {
                 echo "{$event->user_realname}: ";
@@ -94,7 +95,7 @@ stack('footer', partial('event', array('named_timelines' => $named_timelines)));
                 }
               }
               ?>
-            </td>
+            </span></td>
           <?php
           }
           else {
@@ -108,7 +109,7 @@ stack('footer', partial('event', array('named_timelines' => $named_timelines)));
         $i++;
         ?>
         <td class="action">
-          <a href="#" data-toggle="modal" data-target="#edit-event"><span class="glyphicon glyphicon-pencil"></span></a>
+          <a href="#" class="edit-event" data-id="<?php echo $event->id; ?>"><span class="glyphicon glyphicon-pencil"></span></a>
         </td>
       </tr>
       <?php

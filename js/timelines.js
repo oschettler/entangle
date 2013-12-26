@@ -50,11 +50,48 @@ jQuery(function () {
     ctx.stroke();
   });
 
+  $('a.add-event').click(function (e) {
+
+    var $form = $('#event-form');
+    $form.attr('action', '/event/add');
+    $('#edit-event').modal('show');
+
+    e.preventDefault();
+  });
+
+  $('a.edit-event').click(function (e) {
+    var event_id = $(this).attr('data-id');    
+
+    $.getJSON('/event/' + event_id, function (event) {
+      var $form = $('#event-form');
+      $form.attr('action', '/event/edit');
+
+      $('#event_id-field').val(event.id);
+      $('#timeline_id-field').val(event.timeline_id);
+      $('#location-field').val(event.location);
+      $('#title-field').val(event.title);
+      $('#description-field').val(event.description);
+      $('#date_from-field').val(event.date_from);
+      $('#date_to-field').val(event.date_to);
+      $('#duration-field').val(event.duration);
+      
+      if (event.duration_unit) {
+        $('#unit-field').val(event.duration_unit);
+        $('#unit-value').text(event.duration_unit);
+      }
+      $('#anniversary-field').val(event.anniversary);
+      
+      $('#edit-event').modal('show');
+    });
+
+    e.preventDefault();
+  });
+
   $('a.unit').click(function (e) {
 	  var unit = $(this).attr('data-unit');
     $('#unit-field').val(unit);
     $('#unit-value').text(unit);
-    $(this).parents('.dropdown-menu').sibling('.dropdown-toggle').dropdown('toggle');
+    $(this).parents('.dropdown-menu').siblings('.dropdown-toggle').dropdown('toggle');
     
     e.preventDefault();
   });
@@ -101,7 +138,7 @@ jQuery(function () {
           break;
         
         case 'duration':
-          if (val == '' || val.match(/^\d+(\.\d*)$/)) {
+          if (val == '' || val.match(/^\d+(\.\d*)?$/)) {
             return;
           }
           $(this).parents('div.form-group').addClass('has-error');
@@ -147,5 +184,15 @@ jQuery(function () {
         
     e.preventDefault();
   });
+  
+  $('tbody tr').hover(function () {
+    $('a.edit-event', this).show();
+  }, function () {
+    $('a.edit-event', this).hide();
+  });
+  
+  $('td.event span').popover();
 
+  //$('table.events').fixedHeaderTable();
+  
 });

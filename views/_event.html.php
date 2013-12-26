@@ -1,6 +1,7 @@
 <!-- Modal -->
 <div class="modal fade" id="edit-event" tabindex="-1" role="dialog" aria-labelledby="eventLabel" aria-hidden="true">
   <form method="POST" id="event-form" action="/event/add" role="form" class="modal-dialog">
+    <input id="event_id-field" name="event_id" type="hidden">
     <div class="modal-content">
       <div class="modal-header">
         <?php echo partial('alert'); ?>
@@ -11,7 +12,7 @@
         <div class="row">
           <div class="col-md-6 form-group">
             <label class="control-label" for="timeline_id">Timeline</label>
-            <select name="timeline_id" class="form-control">
+            <select id="timeline_id-field" name="timeline_id" class="form-control">
       			<?php
       			$own_timelines = array();
       			$other_timelines = array();
@@ -52,36 +53,36 @@
           </div>
           <div class="col-md-6 form-group">
             <label class="control-label" for="location">Location</label>
-            <input class="form-control" name="location">
+            <input class="form-control" id="location-field" name="location">
           </div>
         </div>
         <div class="form-group">
           <label class="control-label" for="title">Title</label>
-          <input class="form-control" name="title">
+          <input class="form-control" id="title-field" name="title">
         </div>
         <div class="form-group">
           <label class="control-label" for="description">Description</label>
-          <textarea class="form-control" name="description" rows="3"></textarea>
+          <textarea class="form-control" id="description-field" name="description" rows="3"></textarea>
         </div>
         <div class="row">
           <div class="col-md-6">
             <div class="form-group">
               <label class="control-label" for="date_from">From</label>
-              <input class="form-control" name="date_from">
+              <input class="form-control" id="date_from-field" name="date_from">
             </div>
             <div class="form-group">
               <label class="control-label" for="anniversary">Anniversary</label>
-              <input class="form-control" name="anniversary">
+              <input class="form-control" id="anniversary-field" name="anniversary">
             </div>
           </div>
           <div class="col-md-6">
             <div class="form-group">
               <label class="control-label" for="date_to">Until</label>
-              <input class="form-control" name="date_to">
+              <input class="form-control" id="date_to-field" name="date_to">
             </div>
             <label class="control-label" for="duration">Duration</label>
             <div class="input-group">
-              <input type="text" name="duration" class="form-control">
+              <input type="text" id="duration-field" name="duration" class="form-control">
               <div class="input-group-btn">
                 <input type="hidden" id="unit-field" name="duration_unit">
                 <button type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown"><span id="unit-value"></span> (Unit) <span class="caret"></span></button>
@@ -97,7 +98,6 @@
 
       </div>
       <div class="modal-footer">
-        <button type="button" class="btn btn-default">Cancel</button>
         <button type="submit" class="btn btn-primary">Save</button>
       </div>
     </div><!-- /.modal-content -->

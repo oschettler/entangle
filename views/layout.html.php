@@ -20,8 +20,11 @@
     <script type="text/javascript" src="/js/scripts.js"></script>
     <?php
     while ($script = stack('scripts')) {
+      if (strpos($script, '//') !== 0) {
+        $script = "/js/{$script}.js";
+      }
       ?>
-      <script type="text/javascript" src="/js/<?php echo $script; ?>.js"></script>
+      <script type="text/javascript" src="<?php echo $script; ?>"></script>
       <?php        
     }
     ?>

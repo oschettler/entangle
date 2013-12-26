@@ -1,7 +1,13 @@
 <?php
 
+before(function () {
+  if (path() != '/user/login' && empty($_SESSION['user'])) {
+    flash('error', 'Not logged in');
+    redirect('/');
+  }
+});
+
 on('POST', '/login', function () {
-  
   if (empty($_POST['username']) || empty($_POST['password'])) {
     flash('error', 'Please fill in username and password');
     redirect('/');
@@ -34,12 +40,6 @@ on('GET', '/logout', function () {
 });
 
 on('GET', '/edit', function () {
-
-  if (empty($_SESSION['user'])) {
-    flash('error', 'Not logged in');
-    redirect('/');
-  }
-
   $user = ORM::for_table('user')
     ->find_one($_SESSION['user']->id);
     
@@ -67,10 +67,47 @@ on('GET', '/edit', function () {
     ->find_result_set();
     
   render('edit', array(
-    'page_title' => 'Edit user',
+    'page_title' => 'Edit',
     'user' => $user,
     'timelines' => $timelines,
     'displays' => $displays,
     'locations' => $locations,
   ));
+});
+
+on('POST', '/edit_profile', function () {
+  $user = ORM::for_table('user')
+    ->find_one($_SESSION['user']->id);
+
+  // All fields required
+  foreach (array('username', 'email', 'password', 'realname') as $field) {
+    if (empty($field)) {
+      flash('error', 'All fields are required');
+      redirect('/user/edit');
+    }
+  }
+
+  // username, email must be unique
+  foreach (array('username', 'email') as $field) {
+    $other = ORM::for_table('user')
+      ->select_expr('COUNT(*)', 'count')
+      ->where('username', $_POST[$field])
+      ->where_not_equal('id', $_SESSION['user']->id)
+      ->find_one();
+    if ($other->count) {
+      flash('error', ucfirst($field) . ' "' . addslashes($_POST[$field]) . '" already taken');
+      redirect('/user/edit');
+    }
+  }
+  
+  $user->username = $_POST['username'];
+  $user->email = $_POST['email'];
+
+  $user->password = md5($_POST['password']);
+
+  $user->realname = $_POST['realname'];
+  $user->updated = strftime('%Y-%m-%d %H:%M:%S');
+  $user->save();
+  flash('success', 'User has been saved');
+  redirect('/user/edit');
 });

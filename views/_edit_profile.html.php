@@ -1,5 +1,5 @@
 <h2>Profile</h2>
-<form method="POST" class="form" action="/user/edit">
+<form method="POST" class="form" action="/user/edit_profile">
   <div class="form-group">
     <label class="control-label" for="username">Username</label>
     <input class="form-control" id="username-field" name="username" value="<?php echo addslashes($user->username); ?>">

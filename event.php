@@ -17,9 +17,9 @@ function save_event($event) {
   $event->timeline_id = $_POST['timeline_id'];
 
   if (!empty($_POST['location'])) {
-	$location = ORM::for_table('location')
-		->where_like('title', $_POST['location'] . '%')
-		->find_one();
+  	$location = ORM::for_table('location')
+	  	->where_like('title', $_POST['location'] . '%')
+      ->find_one();
   	if ($location) {
   	  $event->location_id = $location->id;
   	}

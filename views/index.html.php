@@ -2,6 +2,7 @@
 stack('styles', 'timelines'); 
 stack('scripts', 'timelines');
 //stack('scripts', '//rawgithub.com/markmalek/Fixed-Header-Table/master/jquery.fixedheadertable.min.js');
+stack('scripts', '//rawgithub.com/carhartl/jquery-cookie/master/jquery.cookie.js');
 stack('footer', partial('event', array('named_timelines' => $named_timelines)));
 ?>
 
@@ -11,7 +12,7 @@ stack('footer', partial('event', array('named_timelines' => $named_timelines)));
       <th class="dates">Daten</th>
       <th class="spans">&nbsp;</th>
       <?php
-      $width = 80 / count($timelines);
+      $width = 75 / count($timelines);
       foreach ($timelines as $timeline) {
         ?>
         <th style="width:<?php echo $width; ?>%"><?php echo $timeline->title; ?></th>

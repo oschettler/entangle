@@ -54,6 +54,16 @@ jQuery(function () {
 
     var $form = $('#event-form');
     $form.attr('action', '/event/add');
+
+    $('#event_id-field').val('');
+    $('#timeline_id-field').val('');
+    $('#location-field').val('');
+    $('#title-field').val('');
+    $('#description-field').val('');
+    $('#date_from-field').val('');
+    $('#date_to-field').val('');
+    $('#duration-field').val('');
+
     $('#edit-event').modal('show');
 
     e.preventDefault();
@@ -158,7 +168,9 @@ jQuery(function () {
         url: action,
         type: method,
         data: $(this).serialize(),
-        success: function () {
+        dataType: 'json',
+        success: function (data) {
+          $.cookie('_F', JSON.stringify(data));
           location.href = '/';
         },
         error: function (xhr, textStatus, errorThrown) {

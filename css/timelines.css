@@ -6,7 +6,7 @@ body > div.container {
 }
 
 th.dates, td.dates {
-  width: 12%;
+  width: 15%;
 }
 
 th.spans, td.spans {
@@ -14,7 +14,8 @@ th.spans, td.spans {
 }
 
 th.action, td.action {
-  width: 3%;
+  width: 5%;
+  text-align: right;
 }
 
 #spans {

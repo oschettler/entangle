@@ -46,7 +46,9 @@ function save_event($event) {
 
   try {
     if ($event->save()) {
-      return 'OK';
+      echo json_encode(array('success' => 'Saved event #' . $event->id . ' "' 
+        . addslashes($event->title) . '"'));
+      return;
     }
     else {
       error(500, 'The event could not be saved');

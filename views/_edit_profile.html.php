@@ -1,5 +1,12 @@
-<h2>Profile</h2>
-<form method="POST" class="form" action="/user/edit_profile">
+<?php
+if (!empty($page_title)) {
+  ?><h1><?php echo $page_title; ?></h1><?php
+}
+else {
+  ?><h2>Profile</h2><?php
+}
+?>
+<form method="POST" class="form" autocomplete="off" action="<?php echo empty($action) ? '/user/edit_profile' : $action; ?>">
   <div class="form-group">
     <label class="control-label" for="username">Username</label>
     <input class="form-control" id="username-field" name="username" value="<?php echo addslashes($user->username); ?>">

@@ -1,7 +1,12 @@
 <?php
 
 before(function () {
-  if (path() != '/user/login' && empty($_SESSION['user'])) {
+  $path = path();
+  
+  if (strpos($path, '/user') === 0 
+    && !in_array($path, array('/user/login', '/user/register')) 
+    && empty($_SESSION['user'])) {
+
     flash('error', 'Not logged in');
     redirect('/');
   }
@@ -37,6 +42,14 @@ on('GET', '/logout', function () {
   unset($_SESSION['user']);
   flash('success', 'You are logged out');
   redirect('/');
+});
+
+on('GET', 'register', function () {
+  stack('styles', 'edit');
+
+  render('register', array(
+    'page_title' => 'Register account',
+  ));
 });
 
 on('GET', '/edit', function () {
@@ -75,15 +88,13 @@ on('GET', '/edit', function () {
   ));
 });
 
-on('POST', '/edit_profile', function () {
-  $user = ORM::for_table('user')
-    ->find_one($_SESSION['user']->id);
+function save_user($user, $redirect) {
 
   // All fields required
   foreach (array('username', 'email', 'password', 'realname') as $field) {
-    if (empty($field)) {
+    if (empty($_POST[$field])) {
       flash('error', 'All fields are required');
-      redirect('/user/edit');
+      redirect($redirect);
     }
   }
 
@@ -91,13 +102,23 @@ on('POST', '/edit_profile', function () {
   foreach (array('username', 'email') as $field) {
     $other = ORM::for_table('user')
       ->select_expr('COUNT(*)', 'count')
-      ->where('username', $_POST[$field])
-      ->where_not_equal('id', $_SESSION['user']->id)
-      ->find_one();
+      ->where('username', $_POST[$field]);
+
+    if (!empty($_SESSION['user']->id)) {
+      $other->where_not_equal('id', $_SESSION['user']->id);
+    }      
+      
+    $other->find_one();
     if ($other->count) {
       flash('error', ucfirst($field) . ' "' . addslashes($_POST[$field]) . '" already taken');
-      redirect('/user/edit');
+      redirect($redirect);
     }
+  }
+  
+  // email must be an email address
+  if (!preg_match('/^\w\S*@\w+\.\S*\w+$/', $_POST['email'])) {
+    flash('error', 'Invalid email address');
+    redirect($redirect);
   }
   
   $user->username = $_POST['username'];
@@ -106,8 +127,60 @@ on('POST', '/edit_profile', function () {
   $user->password = md5($_POST['password']);
 
   $user->realname = $_POST['realname'];
-  $user->updated = strftime('%Y-%m-%d %H:%M:%S');
+  
+  if ($user->id) {
+    $user->updated = strftime('%Y-%m-%d %H:%M:%S');
+  }
+  else {
+    $user->created = strftime('%Y-%m-%d %H:%M:%S');
+  }
   $user->save();
+  return $user->id;
+}
+
+on('POST', '/register', function () {
+  $user = ORM::for_table('user')->create();
+
+  $user_id = save_user($user, '/user/register');
+  
+  $timeline = ORM::for_table('timeline')->create();
+  $timeline->user_id = $user_id;
+  $timeline->name = 'life';
+  $timeline->title = 'Leben';
+  $timeline->created = strftime('%Y-%m-%d %H:%M:%S');
+  $timeline->save();
+  
+  $event = ORM::for_table('event')->create();
+  $event->timeline_id = $timeline->id;
+  $event->title = 'Nutzerkonto angelegt';
+  $event->date_from = strftime('%Y-%m-%d');
+  $event->duration = 1;
+  $event->duration_unit = 'd';
+  $event->created = strftime('%Y-%m-%d %H:%M:%S');
+  $event->save();
+  
+  $entangled = ORM::for_table('entangled')->create();
+  $entangled->user_id = $user_id;
+  $entangled->title = 'Start';
+  $entangled->created = strftime('%Y-%m-%d %H:%M:%S');
+  $entangled->save();
+  
+  $entangled_timeline = ORM::for_table('entangled_timeline')->create();
+  $entangled_timeline->entangled_id = $entangled->id;
+  $entangled_timeline->timeline_id = $timeline->id;
+  $entangled_timeline->created = strftime('%Y-%m-%d %H:%M:%S');
+  $entangled_timeline->save();
+  
+  flash('success', 'User has been created. Please login');
+  redirect('/');
+});
+
+on('POST', '/edit_profile', function () {
+  $user = ORM::for_table('user')
+    ->find_one($_SESSION['user']->id);
+
+  save_user($user, '/user/edit');
+  
   flash('success', 'User has been saved');
   redirect('/user/edit');
 });

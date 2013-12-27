@@ -143,33 +143,33 @@ on('POST', '/register', function () {
 
   $user_id = save_user($user, '/user/register');
   
-  $timeline = ORM::for_table('timeline')->create();
-  $timeline->user_id = $user_id;
-  $timeline->name = 'life';
-  $timeline->title = 'Leben';
-  $timeline->created = strftime('%Y-%m-%d %H:%M:%S');
-  $timeline->save();
+  $timeline = ORM::for_table('timeline')->create(array(
+    'user_id' => $user_id,
+    'name' => 'life',
+    'title' => 'Leben',
+    'created' => strftime('%Y-%m-%d %H:%M:%S'),
+  ))->save();
   
-  $event = ORM::for_table('event')->create();
-  $event->timeline_id = $timeline->id;
-  $event->title = 'Nutzerkonto angelegt';
-  $event->date_from = strftime('%Y-%m-%d');
-  $event->duration = 1;
-  $event->duration_unit = 'd';
-  $event->created = strftime('%Y-%m-%d %H:%M:%S');
-  $event->save();
+  $event = ORM::for_table('event')->create(array(
+    'timeline_id' => $timeline->id,
+    'title' => 'Nutzerkonto angelegt',
+    'date_from' => strftime('%Y-%m-%d'),
+    'duration' => 1,
+    'duration_unit' => 'd',
+    'created' => strftime('%Y-%m-%d %H:%M:%S')
+  ))->save();
   
-  $entangled = ORM::for_table('entangled')->create();
-  $entangled->user_id = $user_id;
-  $entangled->title = 'Start';
-  $entangled->created = strftime('%Y-%m-%d %H:%M:%S');
-  $entangled->save();
+  $entangled = ORM::for_table('entangled')->create(array(
+    'user_id' => $user_id,
+    'title' => 'Start',
+    'created' => strftime('%Y-%m-%d %H:%M:%S')
+  ))->save();
   
-  $entangled_timeline = ORM::for_table('entangled_timeline')->create();
-  $entangled_timeline->entangled_id = $entangled->id;
-  $entangled_timeline->timeline_id = $timeline->id;
-  $entangled_timeline->created = strftime('%Y-%m-%d %H:%M:%S');
-  $entangled_timeline->save();
+  $entangled_timeline = ORM::for_table('entangled_timeline')->create(array(
+    'entangled_id' => $entangled->id,
+    'timeline_id' => $timeline->id,
+    'created' => strftime('%Y-%m-%d %H:%M:%S'),
+  ))->save();
   
   flash('success', 'User has been created. Please login');
   redirect('/');

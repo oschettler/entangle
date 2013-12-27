@@ -5,20 +5,20 @@ CREATE TABLE "entangled" (
   "id" integer NOT NULL PRIMARY KEY AUTOINCREMENT,
   "user_id" integer NOT NULL,
   "title" text NOT NULL,
-  "created" integer NOT NULL,
-  "updated" integer NOT NULL,
-  FOREIGN KEY ("user_id") REFERENCES "user" ("id")
+  "created" text NOT NULL,
+  "updated" text NULL,
+  FOREIGN KEY ("user_id") REFERENCES "user" ("id") ON DELETE NO ACTION ON UPDATE NO ACTION
 );
 
 
 DROP TABLE IF EXISTS "entangled_timeline";
 CREATE TABLE "entangled_timeline" (
-  "id" integer NOT NULL,
+  "id" integer NOT NULL PRIMARY KEY AUTOINCREMENT,
   "entangled_id" integer NOT NULL,
   "timeline_id" integer NOT NULL,
-  "created" integer NOT NULL,
-  FOREIGN KEY ("entangled_id") REFERENCES "entangled" ("id"),
-  FOREIGN KEY ("timeline_id") REFERENCES "timeline" ("id")
+  "created" text NOT NULL,
+  FOREIGN KEY ("entangled_id") REFERENCES "entangled" ("id") ON DELETE NO ACTION ON UPDATE NO ACTION,
+  FOREIGN KEY ("timeline_id") REFERENCES "timeline" ("id") ON DELETE NO ACTION ON UPDATE NO ACTION
 );
 
 
@@ -28,7 +28,7 @@ CREATE TABLE "event" (
   "timeline_id" integer NOT NULL,
   "location_id" integer NULL,
   "title" text NOT NULL,
-  "description" text NOT NULL,
+  "description" text NULL,
   "date_from" text NOT NULL,
   "duration" numeric NULL,
   "duration_unit" text NULL,
@@ -36,7 +36,6 @@ CREATE TABLE "event" (
   "anniversary" text NULL,
   "created" text NULL,
   "updated" text NULL,
-  FOREIGN KEY ("timeline_id") REFERENCES "timeline" ("id") ON DELETE NO ACTION ON UPDATE NO ACTION,
   FOREIGN KEY ("location_id") REFERENCES "location" ("id") ON DELETE NO ACTION ON UPDATE NO ACTION,
   FOREIGN KEY ("timeline_id") REFERENCES "timeline" ("id") ON DELETE NO ACTION ON UPDATE NO ACTION
 );
@@ -64,8 +63,8 @@ CREATE TABLE "timeline" (
   "name" text NOT NULL,
   "title" text NOT NULL,
   "timelines" text NULL,
-  "created" integer NOT NULL,
-  "updated" integer NOT NULL,
+  "created" text NOT NULL,
+  "updated" text NULL,
   FOREIGN KEY ("user_id") REFERENCES "user" ("id") ON DELETE NO ACTION ON UPDATE NO ACTION,
   FOREIGN KEY ("user_id") REFERENCES "user" ("id") ON DELETE NO ACTION ON UPDATE NO ACTION
 );
@@ -75,6 +74,7 @@ DROP TABLE IF EXISTS "user";
 CREATE TABLE "user" (
   "id" integer NOT NULL PRIMARY KEY AUTOINCREMENT,
   "username" text NOT NULL,
+  "email" text NULL,
   "password" text NOT NULL,
   "realname" text NOT NULL,
   "created" integer NOT NULL,

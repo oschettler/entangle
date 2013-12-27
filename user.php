@@ -91,7 +91,12 @@ on('GET', '/edit', function () {
 function save_user($user, $redirect) {
 
   // All fields required
-  foreach (array('username', 'email', 'password', 'realname') as $field) {
+  $fields = array('username', 'email', 'realname');
+  if (empty($_SESSION['user']->id)) {
+    // New users need to set their password
+    $fields[] = 'password';
+  }
+  foreach ($fields as $field) {
     if (empty($_POST[$field])) {
       flash('error', 'All fields are required');
       redirect($redirect);
@@ -124,7 +129,9 @@ function save_user($user, $redirect) {
   $user->username = $_POST['username'];
   $user->email = $_POST['email'];
 
-  $user->password = md5($_POST['password']);
+  if (!empty($_POST['password'])) {  
+    $user->password = md5($_POST['password']);
+  }
 
   $user->realname = $_POST['realname'];
   

@@ -148,7 +148,8 @@ on('POST', '/register', function () {
     'name' => 'life',
     'title' => 'Leben',
     'created' => strftime('%Y-%m-%d %H:%M:%S'),
-  ))->save();
+  ));
+  $timeline->save();
   
   $event = ORM::for_table('event')->create(array(
     'timeline_id' => $timeline->id,
@@ -157,19 +158,22 @@ on('POST', '/register', function () {
     'duration' => 1,
     'duration_unit' => 'd',
     'created' => strftime('%Y-%m-%d %H:%M:%S')
-  ))->save();
+  ));
+  $event->save();
   
   $entangled = ORM::for_table('entangled')->create(array(
     'user_id' => $user_id,
     'title' => 'Start',
     'created' => strftime('%Y-%m-%d %H:%M:%S')
-  ))->save();
+  ));
+  $entangled->save();
   
   $entangled_timeline = ORM::for_table('entangled_timeline')->create(array(
     'entangled_id' => $entangled->id,
     'timeline_id' => $timeline->id,
     'created' => strftime('%Y-%m-%d %H:%M:%S'),
-  ))->save();
+  ));
+  $entangled_timeline->save();
   
   flash('success', 'User has been created. Please login');
   redirect('/');

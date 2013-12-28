@@ -10,7 +10,7 @@ jQuery(function () {
   $spans = $('#spans');
   $table = $('table.events');
   
-  $spans.attr('width', 30);
+  $spans.attr('width', 60);
   $spans.attr('height', $table.height());
   $spans.css('top', $('tbody', $table).position().top);
   
@@ -25,7 +25,7 @@ jQuery(function () {
       id = $(this).attr('x-id'),
       there = $('span.date-from[x-id="' + id + '"]').get(0).getBoundingClientRect(),
       y_top = here.bottom - top.top,
-      y_bottom = there.top - top.top,
+      y_bottom = there.top - top.top + 16,
       x = 0;
 
     // Find free horizontal slot
@@ -38,7 +38,7 @@ jQuery(function () {
 
     intervals[y_top] = { y: y_bottom, x: x };
 
-    x = 4 + 4 * x;
+    x = 2 + 4 * x;
 
     ctx.moveTo(x + 2, y_top);
     ctx.lineTo(x, y_top);

@@ -103,12 +103,14 @@ on('GET', '/', function () {
   $points = array();
   $point_count = 0;
   
-  $points[strftime('%Y-%m-%d')][] = (object)array(
+  $today = strftime('%Y-%m-%d');
+  $points[$today][] = (object)array(
     'type' => 'now',
     'title' => '<strong>Heute</strong>',
     'event' => (object)array(
       'id' => 'now',
       'timeline_id' => NULL,
+      'date_from' => $today, 
       'duration' => 1,
       'duration_unit' => 'd',
       'user_id' => $_SESSION['user']->id,
@@ -140,16 +142,16 @@ on('GET', '/', function () {
         
         switch ($event->duration_unit) {
           case 'y':
-            $date_to = $date_from->add(new DateInterval('P1Y'));
+            $date_to = $date_from->add(new DateInterval('P' . $event->duration . 'Y'));
             break;
       
           case 'm':
-            $date_to = $date_from->add(new DateInterval('P1M'));
+            $date_to = $date_from->add(new DateInterval('P' . $event->duration . 'M'));
             break;
       
           case 'd':
           default:
-            $date_to = $date_from->add(new DateInterval('P1D'));
+            $date_to = $date_from->add(new DateInterval('P' . $event->duration . 'D'));
             break;
         }
       }

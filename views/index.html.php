@@ -12,7 +12,6 @@ stack('footer', partial('event', array('named_timelines' => $named_timelines)));
   <thead>
     <tr>
       <th class="dates">Daten</th>
-      <th class="spans">&nbsp;</th>
       <?php
       $width = 80 / count($timelines);
       foreach ($timelines as $timeline) {
@@ -39,12 +38,12 @@ stack('footer', partial('event', array('named_timelines' => $named_timelines)));
           <?php
           if ($point->type == 'to') {
             ?>
-            <span class="date-end" id="dates-<?php echo $i+1; ?>" x-id="<?php echo $event->id; ?>"><?php echo $ts, '<br>(seit ', $event->date_from, ')'; ?></span>
+            <span class="date-end" id="dates-<?php echo $i+1; ?>" x-id="<?php echo $event->id; ?>"><?php echo empty($event->date_to) ? $ts : $event->date_to, '<br>(seit ', $event->date_from, ')'; ?></span>
             <?php
           }
           else {
             ?>
-            <span class="date-<?php echo $point->type; ?>" id="dates-<?php echo $i+1; ?>" x-id="<?php echo $event->id; ?>"><?php echo $ts; ?></span>
+            <span class="date-<?php echo $point->type; ?>" id="dates-<?php echo $i+1; ?>" x-id="<?php echo $event->id; ?>"><?php echo $point->type == 'anniversary' ? $ts : $event->date_from; ?></span>
             <?php
             if (!empty($event->duration)) {
               if (!($event->duration == 1 && $event->duration_unit == 'd')) {

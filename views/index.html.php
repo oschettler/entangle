@@ -6,13 +6,15 @@ stack('scripts', '//rawgithub.com/carhartl/jquery-cookie/master/jquery.cookie.js
 stack('footer', partial('event', array('named_timelines' => $named_timelines)));
 ?>
 
+<canvas id="spans"></canvas>
+
 <table class="events table table-striped">
   <thead>
     <tr>
       <th class="dates">Daten</th>
       <th class="spans">&nbsp;</th>
       <?php
-      $width = 75 / count($timelines);
+      $width = 80 / count($timelines);
       foreach ($timelines as $timeline) {
         ?>
         <th style="width:<?php echo $width; ?>%"><?php echo $timeline->title; ?></th>
@@ -65,11 +67,7 @@ stack('footer', partial('event', array('named_timelines' => $named_timelines)));
           }
           ?>
         </td>
-        <?php
-        if ($i == 0) {
-          echo '<td class="spans" rowspan="', $point_count, '"><canvas id="spans"></canvas></td>';
-        }
-        
+        <?php        
         $tl = 0;
         foreach ($timelines as $timeline) {
           $event_timelines = 0 == count($timeline->timelines) ? array($timeline->id) : $timeline->timelines; 

@@ -8,8 +8,11 @@ jQuery(function () {
   var top = $('#dates-1').get(0).getBoundingClientRect();
   
   $spans = $('#spans');
-  $spans.attr('width', $spans.width());
-  $spans.attr('height', $spans.height());
+  $table = $('table.events');
+  
+  $spans.attr('width', 30);
+  $spans.attr('height', $table.height());
+  $spans.css('top', $('tbody', $table).position().top);
   
   ctx.font = "16px Arial";
   ctx.lineWidth = 2;
@@ -37,7 +40,7 @@ jQuery(function () {
 
     x = 4 + 4 * x;
 
-    ctx.moveTo(x - 2, y_top);
+    ctx.moveTo(x + 2, y_top);
     ctx.lineTo(x, y_top);
 
     ctx.moveTo(x, y_top);
@@ -45,7 +48,7 @@ jQuery(function () {
     ctx.lineTo(x, y_bottom);
 
     ctx.moveTo(x, y_bottom);
-    ctx.lineTo(x - 2, y_bottom);
+    ctx.lineTo(x + 2, y_bottom);
 
     ctx.stroke();
   });

@@ -39,12 +39,12 @@ stack('footer', partial('event', array('named_timelines' => $named_timelines)));
           <?php
           if ($point->type == 'to') {
             ?>
-            <span class="date-end" id="dates-<?php echo $i+1; ?>" x-id="<?php echo $event->id; ?>"><?php echo strftime('%Y-%m-%d', $ts), '<br>(seit ', $event->date_from, ')'; ?></span>
+            <span class="date-end" id="dates-<?php echo $i+1; ?>" x-id="<?php echo $event->id; ?>"><?php echo $ts, '<br>(seit ', $event->date_from, ')'; ?></span>
             <?php
           }
           else {
             ?>
-            <span class="date-<?php echo $point->type; ?>" id="dates-<?php echo $i+1; ?>" x-id="<?php echo $event->id; ?>"><?php echo strftime('%Y-%m-%d', $ts); ?></span>
+            <span class="date-<?php echo $point->type; ?>" id="dates-<?php echo $i+1; ?>" x-id="<?php echo $event->id; ?>"><?php echo $ts; ?></span>
             <?php
             if (!empty($event->duration)) {
               if (!($event->duration == 1 && $event->duration_unit == 'd')) {

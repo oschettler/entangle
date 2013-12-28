@@ -33,6 +33,21 @@ function stack($name, $value = null) {
   return array_push($_stash[$name], $value);
 }
 
+function mkdate($date) {
+  if (preg_match('/^\d{4}-\d{2}-\d{2}$/', $date)) {
+    $result = $date;
+  }
+  else
+  if (preg_match('/^\d{4}-\d{2}$/', $date)) {
+    $result = $date . '-01';
+  }
+  else
+  if (preg_match('/^\d{4}$/', $date)) {
+    $result = $date . '-01-01';
+  }
+  return new DateTimeImmutable($result);
+}
+
 prefix('/user', function () { include 'user.php'; });
 prefix('/event', function () { include 'event.php'; });
 
@@ -88,7 +103,7 @@ on('GET', '/', function () {
   $points = array();
   $point_count = 0;
   
-  $points[time()][] = (object)array(
+  $points[strftime('%Y-%m-%d')][] = (object)array(
     'type' => 'now',
     'title' => '<strong>Heute</strong>',
     'event' => (object)array(
@@ -102,18 +117,21 @@ on('GET', '/', function () {
   $point_count++;
   
   foreach ($events as $event) {
-    $date_from = strtotime($event->date_from);
-
+    $date_from = mkdate($event->date_from);    
+    //var_dump(array($date_from, $event->date_from, $event->date_to, $event->anniversary));
+    
     /*
      * Calculate end point
      */
     
-    $from = strptime($event->date_from, '%Y-%m-%d');
-        
     $date_to = NULL;
     if (!empty($event->date_to)) {
-      if ($event->date_to != $event->date_from) {
-        $date_to = strtotime($event->date_to) + 86399;
+      if ($event->date_to == $event->date_from) {
+        $date_to = $date_from->add(new DateInterval('PT86399S'));
+      }
+      else {
+        $date_to = mkdate($event->date_to);
+        //var_dump(array($date_from, $date_to));
       }
     }
     else
@@ -122,28 +140,16 @@ on('GET', '/', function () {
         
         switch ($event->duration_unit) {
           case 'y':
-            $date_to = mktime(/*H*/0, /*M*/0, /*S*/-1, 
-              $from['tm_mon'] + 1, 
-              $from['tm_mday'],
-              $from['tm_year'] + 1900 + $event->duration
-            ); 
+            $date_to = $date_from->add(new DateInterval('P1Y'));
             break;
       
           case 'm':
-            $date_to = mktime(/*H*/0, /*M*/0, /*S*/-1, 
-              $from['tm_mon'] + 1 + $event->duration, 
-              $from['tm_mday'],
-              $from['tm_year'] + 1900
-            ); 
+            $date_to = $date_from->add(new DateInterval('P1M'));
             break;
       
           case 'd':
           default:
-            $date_to = mktime(/*H*/0, /*M*/0, /*S*/-1, 
-              $from['tm_mon'] + 1, 
-              $from['tm_mday'] + $event->duration,
-              $from['tm_year'] + 1900
-            ); 
+            $date_to = $date_from->add(new DateInterval('P1D'));
             break;
         }
       }
@@ -151,13 +157,13 @@ on('GET', '/', function () {
 
     if ($date_to) {
       // An interval
-      $points[$date_from][] = (object)array(
+      $points[$date_from->format('Y-m-d')][] = (object)array(
         'type' => 'from', 
         'event' => $event,
       );
       $point_count++;
   
-      $points[$date_to][] = (object)array(
+      $points[$date_to->format('Y-m-d')][] = (object)array(
         'type' => 'to', 
         'event' => $event, 
       );
@@ -165,7 +171,7 @@ on('GET', '/', function () {
     }
     else {
       // A single point
-      $points[$date_from][] = (object)array(
+      $points[$date_from->format('Y-m-d')][] = (object)array(
         'type' => 'on', 
         'event' => $event,
       );
@@ -177,28 +183,37 @@ on('GET', '/', function () {
      */
     
     if (!empty($event->anniversary)) {
-      $next_year = time() + 86400 * 365;
-      
+      $next_year = (new DateTime('NOW'))->add(new DateInterval('P1Y'));
+     
       $i = 0;
       do {
         $i++;
-        $anniversary = mktime(/*H*/0, /*M*/0, /*S*/0, 
-          $from['tm_mon'] + 1, 
-          $from['tm_mday'],
-          $from['tm_year'] + 1900 + $i
-        );
-        $points[$anniversary][] = (object)array(
+        $anniversary = $date_from->add(new DateInterval('P' . $i . 'Y'));
+      /*
+      var_dump(array("ANN",
+        get_class($date_from),
+        $date_from,
+        $anniversary,
+        $next_year->diff(new DateTime($anniversary->format('Y-m-d')))->y
+      ));
+      */
+         $points[$anniversary->format('Y-m-d')][] = (object)array(
           'type' => 'anniversary',
           'event' => $event,
           'title' => sprintf($event->anniversary, $i),
         );
         $point_count++;
       }
-      while ($anniversary < $next_year);
+      
+      /*
+       * Comparing DateTimeImmutable does not work, neither does DateTimeImmutable->diff
+       * @see https://bugs.php.net/bug.php?id=65768
+       */
+      while ($next_year->diff(new DateTime($anniversary->format('Y-m-d')))->y > 0);
     }    
     
   } 
-  krsort($points, SORT_NUMERIC);
+  krsort($points, SORT_REGULAR);
   
   $named_timelines = ORM::for_table('timeline')
   	->select_many('timeline.id', 'timeline.user_id', 'timeline.title')

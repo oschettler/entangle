@@ -45,9 +45,13 @@ Lifelines connected
     sudo chown -R www-data ../db
 </pre>
 
-* Open http://entangle.example.com in [your browser](https://www.evernote.com/shard/s1/sh/1b17f1ea-9312-4b30-a043-803f742e12a6/5bfd83b11d86604d9d4a841551a057df/deep/0/entangle!----Register-account.png), click on login / Register account
+* Open http://entangle.example.com in your browser, click on login / Register account
+
+    !https://www.evernote.com/shard/s1/sh/1b17f1ea-9312-4b30-a043-803f742e12a6/5bfd83b11d86604d9d4a841551a057df/deep/0/entangle!----Register-account.png
 
 * Login with this account
 
-* Start logging [your life's events](https://www.evernote.com/shard/s1/sh/3be0f356-03c3-4dba-9cc0-d7d98f2e5133/6290fac600959fd7111edef8492ef3b7/deep/0/entangle!----Start.png)
+* Start logging your life's events
+
+    !https://www.evernote.com/shard/s1/sh/3be0f356-03c3-4dba-9cc0-d7d98f2e5133/6290fac600959fd7111edef8492ef3b7/deep/0/entangle!----Start.png
 

@@ -1,5 +1,8 @@
 <?php
 
+/**
+ * For the /user prefix, only /login and /register may be used anonymously
+ */
 before(function () {
   $path = path();
   
@@ -12,6 +15,9 @@ before(function () {
   }
 });
 
+/**
+ * Login a user by verifying their username and hashed password
+ */
 on('POST', '/login', function () {
   if (empty($_POST['username']) || empty($_POST['password'])) {
     flash('error', 'Please fill in username and password');
@@ -38,12 +44,18 @@ on('POST', '/login', function () {
   redirect('/');
 });
 
+/**
+ * Logout and redirect to startpage
+ */
 on('GET', '/logout', function () {
   unset($_SESSION['user']);
   flash('success', 'You are logged out');
   redirect('/');
 });
 
+/**
+ * Get a form to register a new user
+ */
 on('GET', 'register', function () {
   stack('styles', 'edit');
 
@@ -52,6 +64,9 @@ on('GET', 'register', function () {
   ));
 });
 
+/**
+ * Get a form to edit the logged-in user
+ */
 on('GET', '/edit', function () {
   $user = ORM::for_table('user')
     ->find_one($_SESSION['user']->id);
@@ -88,6 +103,9 @@ on('GET', '/edit', function () {
   ));
 });
 
+/**
+ * Save a user for both acount registration and editing
+ */
 function save_user($user, $redirect) {
 
   // All fields required
@@ -145,6 +163,10 @@ function save_user($user, $redirect) {
   return $user->id;
 }
 
+/**
+ * Take data from a user registration form and create a new user account
+ * In addition, create the required database entries and a first event. 
+ */
 on('POST', '/register', function () {
   $user = ORM::for_table('user')->create();
 
@@ -186,6 +208,9 @@ on('POST', '/register', function () {
   redirect('/');
 });
 
+/**
+ * Save data from editing the logged-in user
+ */
 on('POST', '/edit_profile', function () {
   $user = ORM::for_table('user')
     ->find_one($_SESSION['user']->id);

@@ -52,10 +52,6 @@ CREATE TABLE "location" (
 );
 
 
-DROP TABLE IF EXISTS "sqlite_sequence";
-CREATE TABLE sqlite_sequence(name,seq);
-
-
 DROP TABLE IF EXISTS "timeline";
 CREATE TABLE "timeline" (
   "id" integer NOT NULL PRIMARY KEY AUTOINCREMENT,

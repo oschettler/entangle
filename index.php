@@ -97,13 +97,13 @@ on('GET', '/', function () {
     ->left_outer_join('user', array('timeline.user_id', '=', 'user.id'))
     ->where_in('timeline_id', $event_timelines)
     ->order_by_desc('date_from')
-    ->order_by_asc('timeline_id')
+    ->order_by_asc('timeline_id');
   
   /*
    * Make sure the logged-in user either has ID=1 or the events belong to her
    */
   if ($_SESSION['user']->id != 1) {
-    $events->where('user_id', $_SESSION['user']->id)
+    $events->where('user_id', $_SESSION['user']->id);
   }
 
   $events->find_result_set();

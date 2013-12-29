@@ -1,4 +1,47 @@
-entangle
-========
+# entangle!
 
 Lifelines connected
+
+## Installation
+
+* Clone this repository
+
+    git clone git@github.com:oschettler/entangle.git htdocs
+
+* Point a webserver to the resulting directory, e.g. with PHP-enabled [NGinx](http://nginx.org/)
+
+    server {
+      listen 80;
+      server_name entangle.example.com;
+      root /var/www/entangle-example/htdocs;
+      location / {
+        index index.php;
+        try_files $uri $uri/ /index.php?$args;
+      }
+      access_log entangle-example.access.log;
+      error_log /var/log/nginx/entangle-example.error.log;
+
+      include common/php;
+    }
+
+* Install [Composer](https://getcomposer.org) in htdocs and run it
+
+    curl -sS https://getcomposer.org/installer | php
+    php composer.phar install
+
+* Create a file settings.ini
+
+    cp settings.ini.example ../settings.ini
+
+* Create an SQlite database
+
+    mkdir ../db 
+    sqlite ../db/entangle.sqlite < db-entangle-sqlite.sql
+    sudo chown -R www-data ../db
+
+* Open http://entangle.example.com [in your browser](https://www.evernote.com/shard/s1/sh/1b17f1ea-9312-4b30-a043-803f742e12a6/5bfd83b11d86604d9d4a841551a057df/deep/0/entangle!----Register-account.png), click on login / Register account
+
+* Login with this account
+
+* Start logging [your life's events](https://www.evernote.com/shard/s1/sh/3be0f356-03c3-4dba-9cc0-d7d98f2e5133/6290fac600959fd7111edef8492ef3b7/deep/0/entangle!----Start.png)
+

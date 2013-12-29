@@ -51,82 +51,39 @@ function mkdate($date) {
 prefix('/user', function () { include 'user.php'; });
 prefix('/event', function () { include 'event.php'; });
 
-on('GET', '/', function () { 
-
-  if (!session('user')) {
-    return render('homepage', array(
-      'page_title' => 'Entangled lifes.',
-    ));
-  }
-
-  $entangled = ORM::for_table('entangled')
-    ->where_equal('user_id', $_SESSION['user']->id)
-    ->where_equal('title', 'Start')
-    ->find_one();
-  
+/**
+ * Prepare events for display in a timeline
+ */
+function points($events, $future = FALSE) {
   $timelines = array();
-  $event_timelines = array();
-  foreach (ORM::for_table('entangled_timeline')
-    ->left_outer_join('timeline', array('entangled_timeline.timeline_id', '=', 'timeline.id'))
-    ->where_equal('entangled_timeline.entangled_id', $entangled->id)
-    ->find_many() as $timeline) {
-    
-    if (empty($timeline->timelines)) {
-      $timeline->timelines = array();
-    }
-    else {
-      $timeline->timelines = explode(',', $timeline->timelines);
-    }
-    $timelines[$timeline->id] = $timeline;
-
-    if (0 == count($timeline->timelines)) {
-      $event_timelines[] = $timeline->id;
-    }
-    else {
-      $event_timelines = array_merge($event_timelines, $timeline->timelines);
-    }
-  }
-
-  $events = ORM::for_table('event')
-    ->select('event.*')
-    ->select('location.title', 'location_title')
-    ->select('user.id', 'user_id')
-    ->select('user.realname', 'user_realname')
-    ->left_outer_join('location', array('event.location_id', '=', 'location.id'))
-    ->left_outer_join('timeline', array('event.timeline_id', '=', 'timeline.id'))
-    ->left_outer_join('user', array('timeline.user_id', '=', 'user.id'))
-    ->where_in('timeline_id', $event_timelines)
-    ->order_by_desc('date_from')
-    ->order_by_asc('timeline_id');
-  
-  /*
-   * Make sure the logged-in user either has ID=1 or the events belong to her
-   */
-  if ($_SESSION['user']->id != 1) {
-    $events->where('user_id', $_SESSION['user']->id);
-  }
-
-  //$events->find_result_set();
-
   $points = array();
   $point_count = 0;
   
-  $today = strftime('%Y-%m-%d');
-  $points[$today][] = (object)array(
-    'type' => 'now',
-    'title' => '<strong>Heute</strong>',
-    'event' => (object)array(
-      'id' => 'now',
-      'timeline_id' => NULL,
-      'date_from' => $today, 
-      'duration' => 1,
-      'duration_unit' => 'd',
-      'user_id' => $_SESSION['user']->id,
-    )
-  );
-  $point_count++;
+  /*
+   * If we show anniversaries one year into the future,
+   * mark TODAY with a special event
+   */
+  if ($future) {
+    $today = strftime('%Y-%m-%d');
+    $points[$today][] = (object)array(
+      'type' => 'now',
+      'title' => '<strong>Heute</strong>',
+      'event' => (object)array(
+        'id' => 'now',
+        'public' => FALSE,
+        'timeline_id' => NULL,
+        'date_from' => $today, 
+        'duration' => 1,
+        'duration_unit' => 'd',
+        'user_id' => $_SESSION['user']->id,
+      )
+    );
+    $point_count++;
+  }
   
-  foreach ($events->find_result_set() as $event) {
+  foreach ($events as $event) {
+    $timelines[$event->timeline_id] = TRUE;
+    
     $date_from = mkdate($event->date_from);    
     //var_dump(array($date_from, $event->date_from, $event->date_to, $event->anniversary));
     
@@ -193,7 +150,14 @@ on('GET', '/', function () {
      */
     
     if (!empty($event->anniversary)) {
-      $next_year = (new DateTime('NOW'))->add(new DateInterval('P1Y'));
+      if ($future) {
+        // Show anniversaries one year into the future
+        $next_year = (new DateTime('NOW'))->add(new DateInterval('P1Y'));
+      }
+      else {
+        // Show only past anniversaries
+        $next_year = new DateTime('NOW');
+      }
      
       $i = 0;
       do {
@@ -224,7 +188,70 @@ on('GET', '/', function () {
     
   } 
   krsort($points, SORT_REGULAR);
+  return (object)array(
+    'points' => $points,
+    'count' => $point_count,
+    'timelines' => array_keys($timelines),
+  );
+}
+
+on('GET', '/', function () { 
+
+  if (!session('user')) {
+    return render('homepage', array(
+      'page_title' => 'Entangled lifes.',
+    ));
+  }
+
+  $entangled = ORM::for_table('entangled')
+    ->where_equal('user_id', $_SESSION['user']->id)
+    ->where_equal('title', 'Start')
+    ->find_one();
   
+  $timelines = array();
+  $event_timelines = array();
+  foreach (ORM::for_table('entangled_timeline')
+    ->left_outer_join('timeline', array('entangled_timeline.timeline_id', '=', 'timeline.id'))
+    ->where_equal('entangled_timeline.entangled_id', $entangled->id)
+    ->find_many() as $timeline) {
+    
+    if (empty($timeline->timelines)) {
+      $timeline->timelines = array();
+    }
+    else {
+      $timeline->timelines = explode(',', $timeline->timelines);
+    }
+    $timelines[$timeline->id] = $timeline;
+
+    if (0 == count($timeline->timelines)) {
+      $event_timelines[] = $timeline->id;
+    }
+    else {
+      $event_timelines = array_merge($event_timelines, $timeline->timelines);
+    }
+  }
+
+  $events = ORM::for_table('event')
+    ->select('event.*')
+    ->select('location.title', 'location_title')
+    ->select('user.id', 'user_id')
+    ->select('user.realname', 'user_realname')
+    ->left_outer_join('location', array('event.location_id', '=', 'location.id'))
+    ->left_outer_join('timeline', array('event.timeline_id', '=', 'timeline.id'))
+    ->left_outer_join('user', array('timeline.user_id', '=', 'user.id'))
+    ->where_in('timeline_id', $event_timelines)
+    ->order_by_desc('date_from')
+    ->order_by_asc('timeline_id');
+  
+  /*
+   * Make sure the logged-in user either has ID=1 or the events belong to her
+   */
+  if ($_SESSION['user']->id != 1) {
+    $events->where('user_id', $_SESSION['user']->id);
+  }
+
+  $points = points($events->find_result_set(), /*future*/TRUE);
+
   $named_timelines = ORM::for_table('timeline')
   	->select_many('timeline.id', 'timeline.user_id', 'timeline.title')
     ->select('user.realname', 'user_realname')
@@ -236,9 +263,62 @@ on('GET', '/', function () {
     'page_title' => $entangled->title,
     'timelines' => $timelines,
     'named_timelines' => $named_timelines,
-    'points' => $points,
-    'point_count' => $point_count,
+    'points' => $points->points,
+    'point_count' => $points->count,
   ));
+});
+
+on('GET', '/_i', function () { phpinfo(); });
+
+on('GET', '/:username', function () {
+
+  $user = ORM::for_table('user')
+    ->where('username', params('username'))
+    ->find_one();
+
+  if (!$user) {
+    error(500, 'No such user');
+  }
+  
+  $events = ORM::for_table('event')
+    ->select('event.*')
+    ->select('location.title', 'location_title')
+    ->select('user.id', 'user_id')
+    ->left_outer_join('location', array('event.location_id', '=', 'location.id'))
+    ->left_outer_join('timeline', array('event.timeline_id', '=', 'timeline.id'))
+    ->left_outer_join('user', array('timeline.user_id', '=', 'user.id'))
+    ->where('timeline.user_id', $user->id)
+    ->where('public', 1)
+    ->order_by_desc('date_from')
+    ->order_by_asc('timeline_id');
+
+  $since = params('since');
+  if (!empty($since)) {
+    $events->where_gt('updated', $since);
+  }
+  
+  $points = points($events->find_result_set());
+  if (0 == count($points->timelines)) {
+    // Pointless to render anything if there are no timelines with public events
+    error(500, "No public events");
+  }
+  else {
+  
+    stack('footer', partial('login'));
+  
+    $timelines = ORM::for_table('timeline')
+    	->select_many('id', 'title')
+      ->where_in('id', $points->timelines)
+      ->order_by_asc('title')
+    	->find_result_set();
+  
+    render('index', array(
+      'page_title' => $user->realname,
+      'timelines' => $timelines,
+      'points' => $points->points,
+      'point_count' => $points->count,
+    ));
+  }
 });
 
 dispatch();

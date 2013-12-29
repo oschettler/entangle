@@ -16,6 +16,20 @@
         <li>
           <a href="http://docs.entangle.de/about.html">About</a>
         </li>
+          <?php
+          if (!empty($_SESSION['user']->id)):
+            $url = $_SERVER['HTTPS'] ? 'https://' : 'http://';
+            $url .= $_SERVER['HTTP_HOST'] . '/';
+            $url .= $_SESSION['user']->username;
+            ?>
+            <li>
+              <a href="<?php echo $url; ?>" title="Copy this link to another entangle site">Link!</a>
+            </li>
+            <?php
+          endif;
+          ?>
+        </li>
+
       </ul>
       <ul class="nav navbar-nav navbar-right">
         <?php

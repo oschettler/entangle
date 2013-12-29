@@ -57,11 +57,13 @@ jQuery(function () {
 
     var $form = $('#event-form');
     $form.attr('action', '/event/add');
+    $('#event-form h4.modal-title').text('Add event');
 
     $('#event_id-field').val('');
     $('#timeline_id-field').val('');
     $('#location-field').val('');
     $('#title-field').val('');
+    $('#public-field').prop('checked', false);
     $('#description-field').val('');
     $('#date_from-field').val('');
     $('#date_to-field').val('');
@@ -78,11 +80,13 @@ jQuery(function () {
     $.getJSON('/event/' + event_id, function (event) {
       var $form = $('#event-form');
       $form.attr('action', '/event/edit');
+      $('#event-form h4.modal-title').text('Edit event');
 
       $('#event_id-field').val(event.id);
       $('#timeline_id-field').val(event.timeline_id);
       $('#location-field').val(event.location);
       $('#title-field').val(event.title);
+      $('#public-field').prop('checked', event.public);
       $('#description-field').val(event.description);
       $('#date_from-field').val(event.date_from);
       $('#date_to-field').val(event.date_to);

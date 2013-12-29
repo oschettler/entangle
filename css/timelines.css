@@ -19,6 +19,10 @@ th.action, td.action {
   text-align: right;
 }
 
+td.dates.public {
+  color: red;
+}
+
 #spans {
   position: absolute;
   left: 0;
@@ -30,4 +34,8 @@ td {
 
 a.edit-event {
   display: none;
+}
+
+.col-md-4 .checkbox {
+  margin-top: 30px;
 }

@@ -56,10 +56,22 @@
             <input class="form-control" id="location-field" name="location">
           </div>
         </div>
-        <div class="form-group">
-          <label class="control-label" for="title">Title</label>
-          <input class="form-control" id="title-field" name="title">
+        <div class="row">
+          <div class="col-md-8">
+            <div class="form-group">
+              <label class="control-label" for="title">Title</label>
+              <input class="form-control" id="title-field" name="title">
+            </div>
+          </div>
+          <div class="col-md-4">
+            <div class="checkbox">
+              <label>
+                <input id="public-field" name="public" type="checkbox"> Event is public
+              </label>
+            </div>
+          </div>
         </div>
+
         <div class="form-group">
           <label class="control-label" for="description">Description</label>
           <textarea class="form-control" id="description-field" name="description" rows="3"></textarea>

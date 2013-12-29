@@ -12,13 +12,16 @@ function save_event($event) {
   }
   
   $event->title = $_POST['title'];
+  
+  $event->public = !empty($_POST['public']) && $_POST['public'] ? 1 : 0;
+  
   $event->description = $_POST['description'];
   $event->date_from = $_POST['date_from'];
-  if ($event->id) {
-    $event->updated = strftime('%Y-%m-%d %H:%M:%S');
-  }
-  else {
-    $event->created = strftime('%Y-%m-%d %H:%M:%S');
+
+  $now = strftime('%Y-%m-%d %H:%M:%S');
+  $event->updated = $now;
+  if (!$event->id) {
+    $event->created = $now;
   }
   
   if (empty($_POST['timeline_id'])) {
@@ -152,6 +155,7 @@ on('GET', '/:id', function () {
     'timeline_id' => $event->timeline_id,
     'location' => $event->location_title,
     'title' => $event->title,
+    'public' => $event->public === "1",
     'description' => $event->description,
     'date_from' => $event->date_from,
     'date_to' => $event->date_to,

@@ -2,9 +2,14 @@
 stack('styles', 'timelines'); 
 stack('scripts', 'timelines');
 //stack('scripts', '//rawgithub.com/markmalek/Fixed-Header-Table/master/jquery.fixedheadertable.min.js');
-stack('scripts', '//rawgithub.com/carhartl/jquery-cookie/master/jquery.cookie.js');
-stack('footer', partial('event', array('named_timelines' => $named_timelines)));
+
+if (!empty($named_timelines)) {
+  stack('scripts', '//rawgithub.com/carhartl/jquery-cookie/master/jquery.cookie.js');
+  stack('footer', partial('event', array('named_timelines' => $named_timelines)));
+}
 ?>
+
+<h1><?php echo strip_tags($page_title); ?></h1>
 
 <canvas id="spans"></canvas>
 
@@ -19,10 +24,15 @@ stack('footer', partial('event', array('named_timelines' => $named_timelines)));
         <th style="width:<?php echo $width; ?>%"><?php echo $timeline->title; ?></th>
         <?php
       }
+      
+      if (!empty($named_timelines)):
+        ?>
+        <th class="action">
+          <a class="add-event" href="#"><span class="glyphicon glyphicon-plus-sign"></span></a>
+        </th>
+        <?php
+      endif;
       ?>
-      <th class="action">
-        <a class="add-event" href="#"><span class="glyphicon glyphicon-plus-sign"></span></a>
-      </th>
     </tr>
   </thead>
   <tbody>
@@ -33,7 +43,7 @@ stack('footer', partial('event', array('named_timelines' => $named_timelines)));
       $event = $point->event;
       ?>
       <tr>
-        <td class="dates">
+        <td class="dates<?php if (!empty($named_timelines) && $event->public) { echo " public"; } ?>">
           <?php //echo '[', $point->type, '-&gt;', !empty($point->to_ix) ? $point->to_ix : '', ':', strftime('%Y-%m-%d %H:%M', $ts), ']'; ?>
           <?php
           if ($point->type == 'to') {
@@ -75,7 +85,9 @@ stack('footer', partial('event', array('named_timelines' => $named_timelines)));
             ?>
             <td class="event"><span data-toggle="popover" data-content="<?php echo !empty($event->description) ? addslashes($event->description) : ''; ?>" data-triger="hover" data-placement="bottom">
               <?php
-              if ($event->user_id != $_SESSION['user']->id) {
+              if (!empty($_SESSION['user']->id) 
+                && $event->user_id != $_SESSION['user']->id) {
+
                 echo "{$event->user_realname}: ";
               }
               
@@ -105,10 +117,15 @@ stack('footer', partial('event', array('named_timelines' => $named_timelines)));
         } // timeline
         
         $i++;
+        
+        if (!empty($named_timelines)):
+          ?>
+          <td class="action">
+            <a href="#" class="edit-event" data-id="<?php echo $event->id; ?>"><span class="glyphicon glyphicon-pencil"></span></a>
+          </td>
+          <?php
+        endif;
         ?>
-        <td class="action">
-          <a href="#" class="edit-event" data-id="<?php echo $event->id; ?>"><span class="glyphicon glyphicon-pencil"></span></a>
-        </td>
       </tr>
       <?php
     } // point_list per ts

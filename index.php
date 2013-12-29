@@ -106,7 +106,7 @@ on('GET', '/', function () {
     $events->where('user_id', $_SESSION['user']->id);
   }
 
-  $events->find_result_set();
+  //$events->find_result_set();
 
   $points = array();
   $point_count = 0;
@@ -126,7 +126,7 @@ on('GET', '/', function () {
   );
   $point_count++;
   
-  foreach ($events as $event) {
+  foreach ($events->find_result_set() as $event) {
     $date_from = mkdate($event->date_from);    
     //var_dump(array($date_from, $event->date_from, $event->date_to, $event->anniversary));
     

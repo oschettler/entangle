@@ -86,7 +86,7 @@ on('GET', '/', function () {
       $event_timelines = array_merge($event_timelines, $timeline->timelines);
     }
   }
-    
+
   $events = ORM::for_table('event')
     ->select('event.*')
     ->select('location.title', 'location_title')
@@ -98,8 +98,16 @@ on('GET', '/', function () {
     ->where_in('timeline_id', $event_timelines)
     ->order_by_desc('date_from')
     ->order_by_asc('timeline_id')
-    ->find_result_set();
   
+  /*
+   * Make sure the logged-in user either has ID=1 or the events belong to her
+   */
+  if ($_SESSION['user']->id != 1) {
+    $events->where('user_id', $_SESSION['user']->id)
+  }
+
+  $events->find_result_set();
+
   $points = array();
   $point_count = 0;
   

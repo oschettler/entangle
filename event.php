@@ -1,6 +1,12 @@
 <?php
 
+/**
+ * Save event data for editing an existing event or creating a new one
+ */
 function save_event($event) {
+  if (!$_SESSION['user']) {
+    error(500, 'Not logged in');
+  }
   if (empty($_POST['title']) || empty($_POST['date_from'])) {
     error(500, 'Please fill in title and date_from');
   }
@@ -14,6 +20,26 @@ function save_event($event) {
   else {
     $event->created = strftime('%Y-%m-%d %H:%M:%S');
   }
+  
+  if (empty($_POST['timeline_id'])) {
+    error(500, 'No timeline given');
+  }
+
+  /*
+   * Make sure the logged-in user either has ID=1 or the timeline belongs to her
+   */
+  if ($_SESSION['user']->id != 1) {
+    $timeline = ORM::for_table('timeline')->find_one($_POST['timeline_id']);
+    
+    if (!$timeline) {
+      error(500, 'Not such timeline');
+    }
+    
+    if ($timeline->user_id != $_SESSION['user']->id) {
+      error(500, 'Not permitted to edit this timeline');
+    }
+  }
+  
   $event->timeline_id = $_POST['timeline_id'];
 
   if (!empty($_POST['location'])) {
@@ -59,18 +85,37 @@ function save_event($event) {
   }
 }
 
+/**
+ * Take event data and create a new event
+ */
 on('POST', '/add', function () {
   save_event(ORM::for_table('event')->create());  
 });
 
+/**
+ * Take event data and edit an existing event
+ */
 on('POST', '/edit', function () {
   if (empty($_POST['event_id'])) {
     error(500, 'No event id');
   }
   $event = ORM::for_table('event')
+    ->select('event.*')
+    ->select('timeline.user_id', 'user_id')
+    ->left_outer_join('timeline', array('event.timeline_id', '=', 'timeline.id'))
     ->find_one($_POST['event_id']);
+
   if (!$event) {
     error(500, 'No such event');
+  }
+  
+  /*
+   * Make sure the logged-in user either has ID=1 or the event belongs to her
+   */
+  if ($_SESSION['user']->id != 1) {
+    if ($event->user_id != $_SESSION['user']->id) {
+      error(500, 'Not permitted to edit this event');
+    }
   }
 
   save_event($event);
@@ -84,8 +129,23 @@ on('GET', '/:id', function () {
     ->where('event.id', params('id'))
     ->select('event.*')
     ->select('location.title', 'location_title')
+    ->select('timeline.user_id', 'user_id')
     ->left_outer_join('location', array('event.location_id', '=', 'location.id'))
+    ->left_outer_join('timeline', array('event.timeline_id', '=', 'timeline.id'))
     ->find_one();
+  
+  if (!$event) {
+    error(500, 'No such event');
+  }
+  
+  /*
+   * Make sure the logged-in user either has ID=1 or the event belongs to her
+   */
+  if ($_SESSION['user']->id != 1) {
+    if ($event->user_id != $_SESSION['user']->id) {
+      error(500, 'Not permitted to view this event');
+    }
+  }
     
   json_out((object)array(
     'id' => $event->id,

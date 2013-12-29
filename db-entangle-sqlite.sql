@@ -25,6 +25,7 @@ CREATE TABLE "entangled_timeline" (
 DROP TABLE IF EXISTS "event";
 CREATE TABLE "event" (
   "id" integer NOT NULL PRIMARY KEY AUTOINCREMENT,
+  "public" integer(1) NOT NULL DEFAULT '0',
   "timeline_id" integer NOT NULL,
   "location_id" integer NULL,
   "title" text NOT NULL,
@@ -36,8 +37,8 @@ CREATE TABLE "event" (
   "anniversary" text NULL,
   "created" text NULL,
   "updated" text NULL,
-  FOREIGN KEY ("location_id") REFERENCES "location" ("id") ON DELETE NO ACTION ON UPDATE NO ACTION,
-  FOREIGN KEY ("timeline_id") REFERENCES "timeline" ("id") ON DELETE NO ACTION ON UPDATE NO ACTION
+  FOREIGN KEY ("timeline_id") REFERENCES "timeline" ("id") ON DELETE NO ACTION ON UPDATE NO ACTION,
+  FOREIGN KEY ("location_id") REFERENCES "location" ("id") ON DELETE NO ACTION ON UPDATE NO ACTION
 );
 
 

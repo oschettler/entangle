@@ -1,12 +1,9 @@
 /**
  */
 body > div.container {
+  padding-left: 75px;
   margin-top: 50px;
   position: relative;
-}
-
-table.events {
-  margin-left: 60px;
 }
 
 th.dates, td.dates {

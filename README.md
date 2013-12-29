@@ -10,6 +10,7 @@ Lifelines connected
 
 * Point a webserver to the resulting directory, e.g. with PHP-enabled [NGinx](http://nginx.org/)
 
+<pre>
     server {
       listen 80;
       server_name entangle.example.com;
@@ -23,11 +24,14 @@ Lifelines connected
 
       include common/php;
     }
+</pre>
 
 * Install [Composer](https://getcomposer.org) in htdocs and run it
 
+<pre>
     curl -sS https://getcomposer.org/installer | php
     php composer.phar install
+</pre>
 
 * Create a file settings.ini
 
@@ -35,9 +39,11 @@ Lifelines connected
 
 * Create an SQlite database
 
+<pre>
     mkdir ../db 
     sqlite ../db/entangle.sqlite < db-entangle-sqlite.sql
     sudo chown -R www-data ../db
+</pre>
 
 * Open http://entangle.example.com [in your browser](https://www.evernote.com/shard/s1/sh/1b17f1ea-9312-4b30-a043-803f742e12a6/5bfd83b11d86604d9d4a841551a057df/deep/0/entangle!----Register-account.png), click on login / Register account
 

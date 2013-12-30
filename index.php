@@ -283,6 +283,8 @@ on('GET', '/:username', function () {
   $events = ORM::for_table('event')
     ->select('event.*')
     ->select('location.title', 'location_title')
+    ->select('timeline.name', 'timeline_name')
+    ->select('timeline.title', 'timeline_title')
     ->select('user.id', 'user_id')
     ->left_outer_join('location', array('event.location_id', '=', 'location.id'))
     ->left_outer_join('timeline', array('event.timeline_id', '=', 'timeline.id'))

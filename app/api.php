@@ -4,6 +4,8 @@
  * Base class for HTTP/JSON-based APIs
  */
 class API {
+  var $user_agent = 'entangle';
+
   /**
    * Call REST API, using file_get_contents 
    * and a stream_context for POST data or additional headers.
@@ -11,7 +13,7 @@ class API {
    * Does not use CURL as libcurl has disabled https for PUT
    * in many installations.
    */
-  protected function call($url, $post=FALSE, $headers=array()) {
+  function call($url, $post=FALSE, $headers=array()) {
     $context_opt = array();
   
     if (strpos($url, ' ') !== FALSE) {

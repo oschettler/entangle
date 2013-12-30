@@ -223,3 +223,95 @@ on('POST', '/edit_profile', function () {
   flash('success', 'User has been saved');
   redirect('/user/edit');
 });
+
+/**
+ * Replicate events from a remote user
+ */
+on('GET', '/update/:user_id', function () {
+  require_once 'app/api.php';
+  
+  $lf = empty($_SERVER['DOCUMENT_ROOT']) ? "\n" : '<br>';
+
+  $user_id = params('user_id');
+  
+  $user = ORM::for_table('user')->find_one($user_id);
+  if (!$user || empty($user->source_url)) {
+    error(500, 'No such user');
+  }
+  
+  $api = new API;
+  $events = $api->call($user->source_url);
+  
+  $now = strftime('%Y-%m-%d %H:%M:%S');
+
+  foreach ($events as $remote_event) {
+    $timeline = ORM::for_table('timeline')
+      ->where('name', $remote_event->timeline_name)
+      ->where('user_id', $user->id)
+      ->find_one();
+
+    if (!$timeline) {
+      $timeline = ORM::for_table('timeline')->create(array(
+        'user_id' => $user_id,
+        'name' => $remote_event->timeline_name,
+        'title' => $remote_event->timeline_title,
+        'created' => $now,
+      ));
+      $timeline->save();
+      echo "New timeline #{$timeline->id} {$timeline->title}{$lf}";
+    }
+  
+    $location = ORM::for_table('location')
+      ->where('title', $remote_event->location_title)
+      ->find_one();
+
+    if (!$location) {
+      $location = ORM::for_table('location')->create(array(
+        'title' => $remote_event->location_title,
+        'longitude' => $remote_event->location_longitude,
+        'latitude' => $remote_event->location_latitude,
+        'created' => $now,
+      ));
+      $location->save();
+      echo "New location #{$location->id} {$location->title}{$lf}";
+    }
+  
+    $event = ORM::for_table('event')
+      ->where('source_id', $remote_event->id)
+      ->where('timeline_id', $timeline->id)
+      ->find_one();
+
+    if ($event) {
+      echo "Updating existing event #{$event->id} {$event->title}{$lf}";
+    }
+    else {
+      $event = ORM::for_table('event')->create();
+      echo "Created new event{$lf}";
+    }
+
+    // Detect a conflict
+    if ($event->updated > $event->replicated) {
+      echo "Event #{$event->id} {$event->title} locally edited - not replicated{$lf}";
+      continue;
+    }
+      
+    $event->set(array(
+      'source_id' => $remote_event->id,
+      'replicated' => $now,
+      'public' => 0, // Remote events are always non-public
+      
+      'timeline_id' => $timeline->id,
+      'title' => $remote_event->title,
+      'description' => $remote_event->description,
+      'date_from' => $remote_event->date_from,
+      'date_to' => $remote_event->date_to,
+      'duration' => $remote_event->duration,
+      'duration_unit' => $remote_event->duration_unit,
+      'created' => $remote_event->created,
+      'updated' => $remote_event->updated,
+    ));
+    $event->save();
+    
+    echo "Saved #{$event->id}{$lf}";
+  }
+});

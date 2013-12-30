@@ -283,8 +283,8 @@ on('GET', '/:username', function () {
   $events = ORM::for_table('event')
     ->select('event.*')
     ->select('location.title', 'location_title')
-    ->select('timeline.name', 'timeline_name')
-    ->select('timeline.title', 'timeline_title')
+    ->select('location.longitude', 'location_longitude')
+    ->select('location.latitude', 'location_latitude')
     ->select('user.id', 'user_id')
     ->left_outer_join('location', array('event.location_id', '=', 'location.id'))
     ->left_outer_join('timeline', array('event.timeline_id', '=', 'timeline.id'))
@@ -297,11 +297,6 @@ on('GET', '/:username', function () {
   $since = params('since');
   if (!empty($since)) {
     $events->where_gt('updated', $since);
-  }
-  
-  if (in_array('application/json', explode(',', $_SERVER["HTTP_ACCEPT"]))) {
-    echo json_out($events->find_array());
-    return;
   }
   
   $points = points($events->find_result_set());

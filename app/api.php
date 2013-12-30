@@ -53,6 +53,7 @@ class API {
     );
    
     $context = stream_context_create($context_opt);
+    //return file_get_contents($url, /*include_path*/FALSE, $context);
     return json_decode(file_get_contents($url, /*include_path*/FALSE, $context));
   }
 

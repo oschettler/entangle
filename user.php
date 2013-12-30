@@ -245,6 +245,7 @@ on('GET', '/update/:user_id', function () {
   $now = strftime('%Y-%m-%d %H:%M:%S');
 
   foreach ($events as $remote_event) {
+  
     $timeline = ORM::for_table('timeline')
       ->where('name', $remote_event->timeline_name)
       ->where('user_id', $user->id)
@@ -258,22 +259,29 @@ on('GET', '/update/:user_id', function () {
         'created' => $now,
       ));
       $timeline->save();
-      echo "New timeline #{$timeline->id} {$timeline->title}{$lf}";
+      echo "New timeline #{$timeline->id} \"{$timeline->title}\"{$lf}";
     }
   
-    $location = ORM::for_table('location')
-      ->where('title', $remote_event->location_title)
-      ->find_one();
+    if (!empty($remote_event->location_title)) {
+      $location = ORM::for_table('location')
+        ->where('title', $remote_event->location_title)
+        ->find_one();
+  
+      if (!$location) {
+        $location = ORM::for_table('location')->create(array(
+          'title' => $remote_event->location_title,
+          'longitude' => $remote_event->location_longitude,
+          'latitude' => $remote_event->location_latitude,
+          'created' => $now,
+        ));
+        $location->save();
+        echo "New location #{$location->id} \"{$location->title}\"{$lf}";
+      }
 
-    if (!$location) {
-      $location = ORM::for_table('location')->create(array(
-        'title' => $remote_event->location_title,
-        'longitude' => $remote_event->location_longitude,
-        'latitude' => $remote_event->location_latitude,
-        'created' => $now,
-      ));
-      $location->save();
-      echo "New location #{$location->id} {$location->title}{$lf}";
+      $location_id = $location->id;
+    }
+    else {
+      $location_id = NULL;
     }
   
     $event = ORM::for_table('event')
@@ -282,7 +290,7 @@ on('GET', '/update/:user_id', function () {
       ->find_one();
 
     if ($event) {
-      echo "Updating existing event #{$event->id} {$event->title}{$lf}";
+      echo "Updating existing event #{$event->id} \"{$event->title}\"{$lf}";
     }
     else {
       $event = ORM::for_table('event')->create();
@@ -291,7 +299,7 @@ on('GET', '/update/:user_id', function () {
 
     // Detect a conflict
     if ($event->updated > $event->replicated) {
-      echo "Event #{$event->id} {$event->title} locally edited - not replicated{$lf}";
+      echo "Event #{$event->id} \"{$event->title}\" locally edited - not replicated{$lf}";
       continue;
     }
       
@@ -301,6 +309,7 @@ on('GET', '/update/:user_id', function () {
       'public' => 0, // Remote events are always non-public
       
       'timeline_id' => $timeline->id,
+      'location_id' => $location_id,
       'title' => $remote_event->title,
       'description' => $remote_event->description,
       'date_from' => $remote_event->date_from,

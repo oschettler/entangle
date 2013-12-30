@@ -1,5 +1,5 @@
 <?php
-stack('footer', partial('login'));
+stack('footer', partial('footer_login'));
 ?>
 <div class="jumbotron">
   <h1><?php echo $page_title; ?></h1>

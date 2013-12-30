@@ -4,3 +4,8 @@ body > div.container {
   margin-top: 50px;
   position: relative;
 }
+
+th.action, td.action {
+  width: 60px;
+  text-align: right;
+}

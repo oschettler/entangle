@@ -4,8 +4,7 @@ stack('scripts', 'timelines');
 //stack('scripts', '//rawgithub.com/markmalek/Fixed-Header-Table/master/jquery.fixedheadertable.min.js');
 
 if (!empty($named_timelines)) {
-  stack('scripts', '//rawgithub.com/carhartl/jquery-cookie/master/jquery.cookie.js');
-  stack('footer', partial('event', array('named_timelines' => $named_timelines)));
+  stack('footer', partial('footer_event', array('named_timelines' => $named_timelines)));
 }
 ?>
 
@@ -121,7 +120,7 @@ if (!empty($named_timelines)) {
         if (!empty($named_timelines)):
           ?>
           <td class="action">
-            <a href="#" class="edit-event" data-id="<?php echo $event->id; ?>"><span class="glyphicon glyphicon-pencil"></span></a>
+            <a href="#" class="edit edit-event" data-id="<?php echo $event->id; ?>"><span class="glyphicon glyphicon-edit"></span></a>
           </td>
           <?php
         endif;

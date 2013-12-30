@@ -204,12 +204,6 @@ jQuery(function () {
     e.preventDefault();
   });
   
-  $('tbody tr').hover(function () {
-    $('a.edit-event', this).show();
-  }, function () {
-    $('a.edit-event', this).hide();
-  });
-  
   $('td.event span').popover();
 
   //$('table.events').fixedHeaderTable();

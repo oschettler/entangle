@@ -9,3 +9,11 @@
   border-radius: 0px;
   z-index: 2000;
 }
+
+a.edit, a.del {
+  display: none;
+}
+
+a.del {
+  margin-left: 10px;
+}

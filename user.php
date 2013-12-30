@@ -71,6 +71,10 @@ on('GET', '/edit', function () {
   $user = ORM::for_table('user')
     ->find_one($_SESSION['user']->id);
     
+  $subscriptions = ORM::for_table('user')
+    ->where_not_null('source_url')
+    ->find_result_set();
+
   $timelines = ORM::for_table('timeline')
     ->select('timeline.*')
     ->select('user.realname', 'user_realname')
@@ -97,6 +101,7 @@ on('GET', '/edit', function () {
   render('edit', array(
     'page_title' => 'Edit',
     'user' => $user,
+    'subscriptions' => $subscriptions,
     'timelines' => $timelines,
     'displays' => $displays,
     'locations' => $locations,
@@ -162,6 +167,48 @@ function save_user($user, $redirect) {
   $user->save();
   return $user->id;
 }
+
+/**
+ * Add a subscription (disguised as user)
+ */
+on('POST', '/add', function () {
+  $user = ORM::for_table('user')->create();
+  
+  // All fields required
+  $fields = array('source_url', 'realname');
+  foreach ($fields as $field) {
+    if (empty($_POST[$field])) {
+      error(500, 'All fields are required');
+    }
+  }
+  
+  $now = strftime('%Y-%m-%d %H:%M:%S');
+  
+  if (!preg_match('#^https?://#i', $_POST['source_url'])) {
+    $user->source_url = 'http://' . $_POST['source_url']; 
+  }
+  else {
+    $user->source_url = $_POST['source_url'];
+  }  
+  
+  $url = parse_url($user->source_url);
+  
+  if (empty($url['path']) || strlen($url['path']) == 1) {
+    $path = time();
+  }
+  else {
+    $path = substr($url['path'], 1);
+  }
+  
+  $user->username = $path . '@' . $url['host'];
+  $user->realname = $_POST['realname'];
+  
+  $user->created = $now;
+  
+  $user->save();
+  
+  json_out(array('success' => "Subscription created"));
+});
 
 /**
  * Take data from a user registration form and create a new user account
@@ -323,4 +370,24 @@ on('GET', '/update/:user_id', function () {
     
     echo "Saved #{$event->id}{$lf}";
   }
+});
+
+on('POST', '/del/:id', function () {
+  $id = params('id');
+
+  if (
+       !$_SESSION['user'] // only logged-in 
+    || $_SESSION['user']->id != 1 // only super-user
+    || $_SESSION['user']->id == $id) { // not self
+    
+    error(500, 'Not allowed');
+  }
+  
+  $user = ORM::for_table('user')->find_one($id);
+  
+  $type = empty($user->source_url) ? 'User' : 'Subscription';
+  
+  $user->delete();
+
+  json_out(array('success' => "{$type} #{$id} deleted"));
 });

@@ -299,6 +299,11 @@ on('GET', '/:username', function () {
     $events->where_gt('updated', $since);
   }
   
+  if (in_array('application/json', explode(',', $_SERVER["HTTP_ACCEPT"]))) {
+    echo json_out($events->find_array());
+    return;
+  }
+ 
   $points = points($events->find_result_set());
   if (0 == count($points->timelines)) {
     // Pointless to render anything if there are no timelines with public events

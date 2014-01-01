@@ -313,7 +313,7 @@ on('GET', '/:username', function () {
   }
   else {
   
-    stack('footer', partial('login'));
+    stack('footer', partial('footer_login'));
   
     $timelines = ORM::for_table('timeline')
     	->select_many('id', 'title')

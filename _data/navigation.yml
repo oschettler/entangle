@@ -1,4 +1,6 @@
 - text: Home
-  url: ./
+  url: https://entangle.de
+- text: Documentation
+  url: /
 - text: About
-  url: ./about.html
+  url: /about.html

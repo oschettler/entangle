@@ -168,12 +168,7 @@ function save_user($user, $redirect) {
   return $user->id;
 }
 
-/**
- * Add a subscription (disguised as user)
- */
-on('POST', '/add', function () {
-  $user = ORM::for_table('user')->create();
-  
+function save_subscription($user) {
   // All fields required
   $fields = array('source_url', 'realname');
   foreach ($fields as $field) {
@@ -203,11 +198,46 @@ on('POST', '/add', function () {
   $user->username = $path . '@' . $url['host'];
   $user->realname = $_POST['realname'];
   
-  $user->created = $now;
+  if ($user->id) {
+    $user->updated = $now;
+  }
+  else {
+    $user->created = $now;
+  }
   
   $user->save();
+  return $user->id;
+}
+
+/**
+ * Add a subscription (disguised as user)
+ */
+on('POST', '/add', function () {
+  $user = ORM::for_table('user')->create();
+  
+  save_subscription($user);
   
   json_out(array('success' => "Subscription created"));
+});
+
+/**
+ * Edit a subscription (disguised as user)
+ */
+on('POST', '/edit_subscription', function () {
+  if (empty($_POST['id'])) {
+    error(500, 'No id given');
+  }
+
+  $user = ORM::for_table('user')
+    ->find_one($_POST['id']);
+  
+  if (!$user) {
+    error(500, 'No such subscription');
+  }
+  
+  save_subscription($user);
+  
+  json_out(array('success' => "Subscription changed"));
 });
 
 /**

@@ -35,3 +35,7 @@ td {
 .col-md-4 .checkbox {
   margin-top: 30px;
 }
+
+span.with-details {
+  cursor: pointer;
+}

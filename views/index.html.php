@@ -82,30 +82,40 @@ if (!empty($named_timelines)) {
           
           if ($tl == 0 && $event->timeline_id == NULL || in_array($event->timeline_id, $event_timelines)) {
             ?>
-            <td class="event"><span data-toggle="popover" data-content="<?php echo !empty($event->description) ? addslashes($event->description) : ''; ?>" data-triger="hover" data-placement="bottom">
+            <td class="event">
               <?php
+              $text = '';
               if (!empty($_SESSION['user']->id) 
                 && $event->user_id != $_SESSION['user']->id) {
 
-                echo "{$event->user_realname}: ";
+                $text .= "{$event->user_realname}: ";
               }
               
               if ($point->type == 'to') {
-                echo '<strong>Ende:</strong> ';
+                $text .= '<strong>Ende:</strong> ';
               }
               
               if (!empty($point->title)) {
-                echo $point->title; 
+                $text .= $point->title; 
               }
               else {
-                echo $event->title; 
+                $text .= $event->title; 
                 if (!empty($event->location_title)) {
-                  echo ' (', $event->location_title, ')'; 
+                  $text .= ' (' . $event->location_title . ')'; 
                 }
               }
+              
+              if (empty($event->description)) {
+                echo $text;
+              }
+              else {
+                ?>
+                <span class="with-details" data-toggle="popover" data-content="<?php echo addslashes(preg_replace("/\s*\n+\s*/", '. ', $event->description)); ?>" data-triger="hover" data-placement="bottom"><?php echo $text; ?></span>
+                <?php
+              }
               ?>
-            </span></td>
-          <?php
+            </td>
+            <?php
           }
           else {
             ?>

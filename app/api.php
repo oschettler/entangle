@@ -28,11 +28,21 @@ class API {
     $context_opt = array($scheme => array()); 
   
     if ($post) {
-      $context_opt[$scheme] = array(
-        'method' => 'POST',
-        'content' => json_encode($post),
-      );
-      $headers[] = 'Content-Type: application/json';
+    
+      if (is_string($post)) {
+        $context_opt[$scheme] = array(
+          'method' => 'POST',
+          'content' => $post,
+        );
+        $headers[] = 'Content-Type: application/x-www-form-urlencoded';
+      }
+      else {
+        $context_opt[$scheme] = array(
+          'method' => 'POST',
+          'content' => json_encode($post),
+        );
+        $headers[] = 'Content-Type: application/json';
+      }
     }
     
     if ($verb != 'GET') {
@@ -51,7 +61,7 @@ class API {
         return "$h\r\n";
       }, $headers))
     );
-   
+    var_dump($context_opt);
     $context = stream_context_create($context_opt);
     //return file_get_contents($url, /*include_path*/FALSE, $context);
     return json_decode(file_get_contents($url, /*include_path*/FALSE, $context));

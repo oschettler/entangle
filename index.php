@@ -130,11 +130,33 @@ function points($events, $future = FALSE) {
       );
       $point_count++;
   
-      $points[$date_to->format('Y-m-d')][] = (object)array(
-        'type' => 'to', 
-        'event' => $event, 
-      );
-      $point_count++;
+      /* 
+       * If precision of the start date is "one year", only add end date
+       * if the duration is more than a year
+       */
+      $has_date_to = TRUE;
+      if (empty($event->date_to) && preg_match('/^\d{4}$/', $event->date_from)) {
+        /*
+         * DateTimeImmutable.diff does not work
+         * This is only fixed in PHP5.5 as of 2013-10
+         * https://bugs.php.net/bug.php?id=65768
+         */
+        $diff = date_diff(
+          new DateTime($date_to->format('Y-m-d')),
+          new DateTime($date_from->format('Y-m-d'))
+        );
+        if ($diff->y < 1) {
+          $has_date_to = FALSE;
+        }
+      }
+      
+      if ($has_date_to) {
+        $points[$date_to->format('Y-m-d')][] = (object)array(
+          'type' => 'to', 
+          'event' => $event, 
+        );
+        $point_count++;
+      }
     }
     else {
       // A single point
@@ -269,6 +291,8 @@ on('GET', '/', function () {
 });
 
 on('GET', '/_i', function () { phpinfo(); });
+
+prefix('/alert', function () { include 'pushover.php'; });
 
 on('GET', '/:username', function () {
 

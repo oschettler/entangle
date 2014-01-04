@@ -10,11 +10,46 @@ session_start();
 
 require_once 'vendor/autoload.php';
 
-ORM::configure('sqlite:../db/entangle.sqlite');
+config('dispatch.views', 'views');
+
+$here = dirname(__FILE__) . '/..';
+if (!file_exists("{$here}/settings.ini")) {
+  if (strpos($here, 'phar://') === 0) {
+    $here = substr($here, 7);
+    $here = substr($here, 0, strpos($here, '/entangle.phar'));
+
+    on('GET', '/js/:file', function () {
+      header('Content-type: application/javascript');
+      readfile('js/' . params('file'));
+    });
+    on('GET', '/css/:file', function () {
+      header('Content-type: text/css');
+      readfile('css/' . params('file'));
+    });
+  }
+  file_put_contents("{$here}/settings.ini", 
+    "; entangle! - https://entangle.de\n; Enter config options here\n"
+  );
+}
+config('source', "{$here}/settings.ini");
+
+$needs_init = FALSE;
+if (!file_exists("{$here}/entangle.sqlite")) {
+  $needs_init = TRUE;
+}
+
+ORM::configure("sqlite:{$here}/entangle.sqlite");
 ORM::configure('return_result_sets', TRUE);
 
-config('dispatch.views', './views');
-config('source', '../settings.ini');
+if ($needs_init) {
+  unset($_SESSION['user']);
+  $db = ORM::get_db();
+  foreach (explode(';', file_get_contents('db-entangle-sqlite.sql')) as $sql) {
+    $db->exec($sql);
+  }
+  flash('success', 'Database has been set up. Now register your account');
+  redirect('/user/register');
+}
 
 /**
  * Similar to dispatch.scope, but keep values as stack

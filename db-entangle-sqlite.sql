@@ -25,7 +25,9 @@ CREATE TABLE "entangled_timeline" (
 DROP TABLE IF EXISTS "event";
 CREATE TABLE "event" (
   "id" integer NOT NULL PRIMARY KEY AUTOINCREMENT,
-  "public" integer(1) NOT NULL DEFAULT '0',
+  "source_id" integer NULL,
+  "replicated" text NULL,
+  "public" integer NOT NULL DEFAULT '0',
   "timeline_id" integer NOT NULL,
   "location_id" integer NULL,
   "title" text NOT NULL,
@@ -40,6 +42,8 @@ CREATE TABLE "event" (
   FOREIGN KEY ("timeline_id") REFERENCES "timeline" ("id") ON DELETE NO ACTION ON UPDATE NO ACTION,
   FOREIGN KEY ("location_id") REFERENCES "location" ("id") ON DELETE NO ACTION ON UPDATE NO ACTION
 );
+
+CREATE INDEX "event_source_id" ON "event" ("source_id");
 
 
 DROP TABLE IF EXISTS "location";
@@ -70,9 +74,10 @@ CREATE TABLE "timeline" (
 DROP TABLE IF EXISTS "user";
 CREATE TABLE "user" (
   "id" integer NOT NULL PRIMARY KEY AUTOINCREMENT,
+  "source_url" text NULL,
   "username" text NOT NULL,
   "email" text NULL,
-  "password" text NOT NULL,
+  "password" text NULL,
   "realname" text NOT NULL,
   "created" integer NOT NULL,
   "updated" integer NULL

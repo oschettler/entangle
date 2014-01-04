@@ -2,6 +2,11 @@
 
 Lifelines connected
 
+## Prerequisites
+
+Due to the use of class DateTimeImmutable you need to have at least PHP 5.5.
+SQlite needs to be enabled, too.
+
 ## Try it
 
 Get the [PHAR archive](https://github.com/oschettler/entangle/raw/master/entangle.phar). Run it with

@@ -51,7 +51,6 @@ if (!file_exists("{$here}/settings.ini")) {
   );
 }
 config('source', "{$here}/settings.ini");
-
 $needs_init = FALSE;
 if (!file_exists("{$here}/entangle.sqlite")) {
   $needs_init = TRUE;

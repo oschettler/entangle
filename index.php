@@ -1,4 +1,23 @@
-<?php 
+<?php
+/**
+ * entangle! Connected timelines on the web
+ *
+ * Copyright (C) 2014 Olav Schettler https://entangle.de
+ *
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ */  
+const VERSION = '0.1.0';
 
 ini_set('display_errors', TRUE);
 error_reporting(-1);
@@ -10,11 +29,46 @@ session_start();
 
 require_once 'vendor/autoload.php';
 
-ORM::configure('sqlite:../db/entangle.sqlite');
+config('dispatch.views', 'views');
+
+$here = dirname(__FILE__) . '/..';
+if (!file_exists("{$here}/settings.ini")) {
+  if (strpos($here, 'phar://') === 0) {
+    $here = substr($here, 7);
+    $here = substr($here, 0, strpos($here, '/entangle.phar'));
+
+    on('GET', '/js/:file', function () {
+      header('Content-type: application/javascript');
+      readfile('js/' . params('file'));
+    });
+    on('GET', '/css/:file', function () {
+      header('Content-type: text/css');
+      readfile('css/' . params('file'));
+    });
+  }
+  file_put_contents("{$here}/settings.ini", 
+    "; entangle! - https://entangle.de\n; Enter config options here\n"
+  );
+}
+config('source', "{$here}/settings.ini");
+
+$needs_init = FALSE;
+if (!file_exists("{$here}/entangle.sqlite")) {
+  $needs_init = TRUE;
+}
+
+ORM::configure("sqlite:{$here}/entangle.sqlite");
 ORM::configure('return_result_sets', TRUE);
 
-config('dispatch.views', './views');
-config('source', '../settings.ini');
+if ($needs_init) {
+  unset($_SESSION['user']);
+  $db = ORM::get_db();
+  foreach (explode(';', file_get_contents('db-entangle-sqlite.sql')) as $sql) {
+    $db->exec($sql);
+  }
+  flash('success', 'Database has been set up. Now register your account');
+  redirect('/user/register');
+}
 
 /**
  * Similar to dispatch.scope, but keep values as stack

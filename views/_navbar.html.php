@@ -18,7 +18,8 @@
         </li>
           <?php
           if (!empty($_SESSION['user']->id)):
-            $url = $_SERVER['HTTPS'] ? 'https://' : 'http://';
+            $url = !empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] 
+              ? 'https://' : 'http://';
             $url .= $_SERVER['HTTP_HOST'] . '/';
             $url .= $_SESSION['user']->username;
             ?>

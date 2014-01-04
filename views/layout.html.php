@@ -62,5 +62,6 @@
       echo $footer;
     }
     ?>
+    <div id="version"><a target="_new" href="https://entangle.de">v<?php echo VERSION; ?></a></div>
   </body>
 </html>

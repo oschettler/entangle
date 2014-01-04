@@ -2,11 +2,23 @@
 
 Lifelines connected
 
+## Try it
+
+Get the [PHAR archive](https://github.com/oschettler/entangle/raw/master/entangle.phar). Run it with
+
+<pre>
+    php -S 0.0.0.0:1111 entangle.phar
+</pre>
+
+Point your web server at http://your-server:1111/
+
 ## Installation
 
 * Clone this repository
 
+<pre>
     git clone git@github.com:oschettler/entangle.git htdocs
+</pre>
 
 * Point a webserver to the resulting directory, e.g. with PHP-enabled [NGinx](http://nginx.org/)
 

@@ -70,7 +70,12 @@ on('GET', 'register', function () {
 on('GET', '/edit', function () {
   $user = ORM::for_table('user')
     ->find_one($_SESSION['user']->id);
-    
+  
+  $users = ORM::for_table('user');
+  if ($_SESSION['user']->id != 1) {
+    $users->where_equal('id', $_SESSION['user']->id);
+  }
+  
   $subscriptions = ORM::for_table('user')
     ->where_not_null('source_url')
     ->find_result_set();
@@ -79,9 +84,13 @@ on('GET', '/edit', function () {
     ->select('timeline.*')
     ->select('user.realname', 'user_realname')
     ->left_outer_join('user', array('timeline.user_id', '=', 'user.id'))
-    ->order_by_asc('user_id', 'name')
-    ->find_result_set();
+    ->order_by_asc('user_id', 'name');
     
+  if ($_SESSION['user']->id != 1) {
+     // not super-user
+     $timelines->where_equal('user_id', $_SESSION['user']->id); 
+  }
+  
   $displays = ORM::for_table('entangled_timeline')
     ->select('timeline.title', 'timeline_title')
     ->select('entangled.id', 'entangled_id')
@@ -91,9 +100,13 @@ on('GET', '/edit', function () {
     ->left_outer_join('timeline', array('entangled_timeline.timeline_id', '=', 'timeline.id'))
     ->left_outer_join('entangled', array('entangled_timeline.entangled_id', '=', 'entangled.id'))
     ->left_outer_join('user', array('entangled.user_id', '=', 'user.id'))
-    ->order_by_asc('user.id', 'entangled.id', 'timeline.id')
-    ->find_result_set();
-
+    ->order_by_asc('user.id', 'entangled.id', 'timeline.id');
+    
+  if ($_SESSION['user']->id != 1) {
+     // not super-user
+     $displays->where_equal('user_id', $_SESSION['user']->id); 
+  }
+  
   $locations = ORM::for_table('location')
     ->order_by_asc('title')
     ->find_result_set();
@@ -101,9 +114,10 @@ on('GET', '/edit', function () {
   render('edit', array(
     'page_title' => 'Edit',
     'user' => $user,
+    'users' => $users->find_result_set(),
     'subscriptions' => $subscriptions,
-    'timelines' => $timelines,
-    'displays' => $displays,
+    'timelines' => $timelines->find_result_set(),
+    'displays' => $displays->find_result_set(),
     'locations' => $locations,
   ));
 });
@@ -238,6 +252,126 @@ on('POST', '/edit_subscription', function () {
   save_subscription($user);
   
   json_out(array('success' => "Subscription changed"));
+});
+
+/**
+ * Add a timeline
+ */
+on('POST', '/add_timeline', function () {
+  $now = strftime('%Y-%m-%d %H:%M:%S');
+  
+  $timeline = ORM::for_table('timeline')->create();
+  
+  $fields = array('user_id', 'name', 'title');
+  foreach ($fields as $field) {
+    if (empty($_POST[$field])) {
+      error(500, 'All fields are required');
+    }
+    $timeline->{$field} = $_POST[$field];
+  }
+  
+  if ($_SESSION['user']->id != 1 // only super-user
+    && $_SESSION['user']->id != $timeline->user_id) { // not self
+    
+    error(500, 'Not allowed');
+  }
+    
+  $timeline->timelines = empty($_POST['timelines']) ? '' : $_POST['timelines'];
+  $timeline->created = $now;
+  $timeline->save();
+    
+  json_out(array('success' => "Timeline added"));
+});
+
+/**
+ * Add a timeline
+ */
+on('POST', '/del_timeline/:id', function () {
+  $id = params('id');
+  
+  if (empty($id)) {
+    error(500, 'No timeline given');
+  }
+
+  $timeline = ORM::for_table('timeline')->find_one($id);
+  if (!$timeline) {
+    error(500, 'No such timeline');
+  }
+  
+  if ($_SESSION['user']->id != 1 // only super-user
+    && $_SESSION['user']->id != $timeline->user_id) { // not self
+    
+    error(500, 'Not allowed');
+  }
+  
+  $timeline->delete();
+
+  json_out(array('success' => "Timeline #{$id} deleted"));
+});
+
+/**
+ * Edit a timeline
+ */
+on('POST', '/edit_timeline', function () {
+
+  if (empty($_POST['id'])) {
+    error(500, 'No timeline given');
+  }
+
+  $timeline = ORM::for_table('timeline')->find_one($_POST['id']);
+  if (!$timeline) {
+    error(500, 'No such timeline');
+  }
+  
+  $now = strftime('%Y-%m-%d %H:%M:%S');
+  
+  $fields = array('name', 'title');
+  foreach ($fields as $field) {
+    if (empty($_POST[$field])) {
+      error(500, 'All fields are required');
+    }
+    $timeline->{$field} = $_POST[$field];
+  }
+  
+  if ($_SESSION['user']->id != 1 // only super-user
+    && $_SESSION['user']->id != $timeline->user_id) { // not self
+    
+    error(500, 'Not allowed');
+  }
+    
+  $timeline->timelines = empty($_POST['timelines']) ? '' : $_POST['timelines'];
+  $timeline->updated = $now;
+  $timeline->save();
+    
+  json_out(array('success' => "Timeline changed"));
+});
+
+/**
+ * Add a display
+ */
+on('POST', '/add_display', function () {
+  
+});
+
+/**
+ * Edit a display
+ */
+on('POST', '/edit_display', function () {
+  
+});
+
+/**
+ * Add a location
+ */
+on('POST', '/add_location', function () {
+  
+});
+
+/**
+ * Edit a location
+ */
+on('POST', '/edit_location', function () {
+  
 });
 
 /**

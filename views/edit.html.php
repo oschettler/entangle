@@ -19,7 +19,7 @@ stack('footer', partial('footer_edit'));
 <div class="tab-content">
   <div class="tab-pane active" id="profile"><?php echo partial('edit_profile', array('user' => $user)); ?></div>
   <div class="tab-pane" id="subscriptions"><?php echo partial('edit_subscriptions', array('subscriptions' => $subscriptions)); ?></div>
-  <div class="tab-pane" id="timelines"><?php echo partial('edit_timelines', array('timelines' => $timelines)); ?></div>
-  <div class="tab-pane" id="displays"><?php echo partial('edit_displays', array('displays' => $displays)); ?></div>
+  <div class="tab-pane" id="timelines"><?php echo partial('edit_timelines', array('timelines' => $timelines, 'users' => $users)); ?></div>
+  <div class="tab-pane" id="displays"><?php echo partial('edit_displays', array('displays' => $displays, 'users' => $users)); ?></div>
   <div class="tab-pane" id="locations"><?php echo partial('edit_locations', array('locations' => $locations)); ?></div>
 </div>

@@ -16,11 +16,11 @@
   foreach ($locations as $loc):
     ?>
     <tr>
-      <td><?php echo $loc->title; ?></td>
-      <td><?php echo $loc->longitude; ?></td>
-      <td><?php echo $loc->latitude; ?></td>
+      <td class="title-val"><?php echo $loc->title; ?></td>
+      <td class="longitude-val"><?php echo $loc->longitude; ?></td>
+      <td class="latitude-val"><?php echo $loc->latitude; ?></td>
       <td class="action">
-        <a href="#" class="edit edit-display" data-id="<?php echo $loc->id; ?>"><span class="glyphicon glyphicon-edit"></span></a>
+        <a href="#" class="edit edit-location" data-id="<?php echo $loc->id; ?>"><span class="glyphicon glyphicon-edit"></span></a>
         <a href="/user/del_location/<?php echo $loc->id; ?>" class="del del-location" data-title="Location #<?php echo $loc->id; ?>"><span class="glyphicon glyphicon-trash"></span></a>
       </td>
     </tr>
@@ -43,7 +43,7 @@
       <div class="modal-body">
         <div class="form-group">
           <label class="control-label" for="loc-title">Title</label>
-          <input class="form-control" id="loc-title-field" name="title">
+          <input class="form-control required" id="loc-title-field" name="title">
         </div>
         <div class="form-group">
           <label class="control-label" for="loc-longitude">Longitude</label>

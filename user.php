@@ -92,6 +92,7 @@ on('GET', '/edit', function () {
   }
   
   $displays = ORM::for_table('entangled_timeline')
+    ->select('timeline.id', 'timeline_id')
     ->select('timeline.title', 'timeline_title')
     ->select('entangled.id', 'entangled_id')
     ->select('entangled.title', 'entangled_title')
@@ -284,7 +285,7 @@ on('POST', '/add_timeline', function () {
 });
 
 /**
- * Add a timeline
+ * Delete a timeline
  */
 on('POST', '/del_timeline/:id', function () {
   $id = params('id');
@@ -350,28 +351,197 @@ on('POST', '/edit_timeline', function () {
  * Add a display
  */
 on('POST', '/add_display', function () {
+  $now = strftime('%Y-%m-%d %H:%M:%S');
   
+  $display = ORM::for_table('display')->create();
+  
+  $fields = array('user_id', 'title');
+  foreach ($fields as $field) {
+    if (empty($_POST[$field])) {
+      error(500, 'All fields are required');
+    }
+    $display->{$field} = $_POST[$field];
+  }
+  
+  if ($_SESSION['user']->id != 1 // only super-user
+    && $_SESSION['user']->id != $display->user_id) { // not self
+    
+    error(500, 'Not allowed');
+  }
+    
+  $display->created = $now;
+  $display->save();
+  
+  foreach (explode(',', $_POST['timelines']) as $tl_id) {
+    $timeline = ORM::for_table('entangled_timeline')->create();
+    $timeline->entangled_id = $display->id;
+    $timeline->timeline_id = intval($tl_id);
+    $timeline->created = $now;
+    $timeline->save();
+  }
+  
+  json_out(array('success' => "Display added"));
+});
+
+/**
+ * Delete a display
+ */
+on('POST', '/del_display/:id', function () {
+  $id = params('id');
+  
+  if (empty($id)) {
+    error(500, 'No display given');
+  }
+
+  $display = ORM::for_table('display')->find_one($id);
+  if (!$display) {
+    error(500, 'No such display');
+  }
+  
+  if ($_SESSION['user']->id != 1 // only super-user
+    && $_SESSION['user']->id != $display->user_id) { // not self
+    
+    error(500, 'Not allowed');
+  }
+  
+  $timelines = ORM::for_table('entangled_timeline')
+    ->where_equal('entangled_id', $id)
+    ->find_many();
+  foreach ($timelines as $tl) {
+    $tl->delete();
+  }
+
+  $display->delete();
+  
+  json_out(array('success' => "Display #{$id} deleted"));
 });
 
 /**
  * Edit a display
  */
 on('POST', '/edit_display', function () {
+  if (empty($_POST['id'])) {
+    error(500, 'No display given');
+  }
+
+  $display = ORM::for_table('display')->find_one($_POST['id']);
+  if (!$display) {
+    error(500, 'No such display');
+  }
   
+  $now = strftime('%Y-%m-%d %H:%M:%S');
+  
+  $fields = array('user_id', 'title');
+  foreach ($fields as $field) {
+    if (empty($_POST[$field])) {
+      error(500, 'All fields are required');
+    }
+    $display->{$field} = $_POST[$field];
+  }
+  
+  if ($_SESSION['user']->id != 1 // only super-user
+    && $_SESSION['user']->id != $display->user_id) { // not self
+    
+    error(500, 'Not allowed');
+  }
+    
+  $display->created = $now;
+  $display->save();
+  
+  $timelines = ORM::for_table('entangled_timeline')
+    ->where_equal('entangled_id', $_POST['id'])
+    ->delete_many();
+  
+  foreach (explode(',', $_POST['timelines']) as $tl_id) {
+    $timeline = ORM::for_table('entangled_timeline')->create();
+    $timeline->entangled_id = $display->id;
+    $timeline->timeline_id = intval($tl_id);
+    $timeline->created = $now;
+    $timeline->save();
+  }
+  
+  json_out(array('success' => "Display changed"));
 });
 
 /**
  * Add a location
  */
 on('POST', '/add_location', function () {
+  $now = strftime('%Y-%m-%d %H:%M:%S');
   
+  $location = ORM::for_table('location')->create();
+  
+  $fields = array('title');
+  foreach ($fields as $field) {
+    if (empty($_POST[$field])) {
+      error(500, 'All fields are required');
+    }
+    $location->{$field} = $_POST[$field];
+  }
+  
+  $location->longitude = empty($_POST['longitude']) ? '' : $_POST['longitude'];
+  $location->latitude = empty($_POST['latitude']) ? '' : $_POST['latitude'];
+  $location->created = $now;
+  $location->save();
+    
+  json_out(array('success' => "Location added"));
+  
+});
+
+/**
+ * Delete a location
+ */
+on('POST', '/del_location/:id', function () {
+  if ($_SESSION['user']->id != 1) { // only super-user
+    error(500, 'Not allowed');
+  }
+  
+  $id = params('id');
+  
+  if (empty($id)) {
+    error(500, 'No location given');
+  }
+
+  $location = ORM::for_table('location')->find_one($id);
+  if (!$location) {
+    error(500, 'No such location');
+  }
+  
+  $location->delete();
+  
+  json_out(array('success' => "Location #{$id} deleted"));
 });
 
 /**
  * Edit a location
  */
 on('POST', '/edit_location', function () {
+
+  if (empty($_POST['id'])) {
+    error(500, 'No location given');
+  }
+
+  $location = ORM::for_table('location')->find_one($_POST['id']);
+  if (!$location) {
+    error(500, 'No such location');
+  }
   
+  $now = strftime('%Y-%m-%d %H:%M:%S');
+  
+  $fields = array('title');
+  foreach ($fields as $field) {
+    if (empty($_POST[$field])) {
+      error(500, 'All fields are required');
+    }
+    $location->{$field} = $_POST[$field];
+  }
+  
+  $location->longitude = empty($_POST['longitude']) ? '' : $_POST['longitude'];
+  $location->latitude = empty($_POST['latitude']) ? '' : $_POST['latitude'];
+  $location->updated = $now;
+  $location->save();
+    
+  json_out(array('success' => "Location changed"));  
 });
 
 /**

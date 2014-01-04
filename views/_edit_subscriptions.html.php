@@ -49,11 +49,11 @@ else {
       <div class="modal-body">
         <div class="form-group">
           <label class="control-label" for="sub-realname">Real name</label>
-          <input class="form-control" id="sub-realname-field" name="realname">
+          <input class="form-control required" id="sub-realname-field" name="realname">
         </div>
         <div class="form-group">
           <label class="control-label" for="sub-source_url">Source URL</label>
-          <input class="form-control" id="sub-source_url-field" name="source_url">
+          <input class="form-control required" id="sub-source_url-field" name="source_url">
         </div>
       </div>
       <div class="modal-footer">

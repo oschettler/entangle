@@ -42,16 +42,16 @@
         <?php
         if ($_SESSION['user']->id == 1):
           ?>
-          <td><?php echo $d->user_realname; ?></td>
+          <td class="user_id-val" data-user_id="<?php echo $d->user_id; ?>"><?php echo $d->user_realname; ?></td>
           <?php
         endif;
         ?>
-        <td><?php echo $d->entangled_title; ?></td>
-        <td><ul>
+        <td class="title-val"><?php echo $d->entangled_title; ?></td>
+        <td class="timelines-val"><ul>
         <?php
     }
     ?>
-    <li><?php echo $d->timeline_title; ?></li>
+    <li data-id="<?php echo $d->timeline_id; ?>"><?php echo "#{$d->timeline_id} {$d->timeline_title}"; ?></li>
     <?php
   }
   close_display_row($d->entangled_id);
@@ -72,7 +72,7 @@
       <div class="modal-body">
         <div class="form-group">
           <label class="control-label" for="tl-user">User</label>
-          <select id="tl-user_id-field" name="user_id" class="form-control">
+          <select id="dis-user_id-field" name="user_id" class="form-control required">
             <?php
             foreach ($users as $user):
               ?>
@@ -84,7 +84,7 @@
         </div>
         <div class="form-group">
           <label class="control-label" for="dis-title">Title</label>
-          <input class="form-control" id="dis-title-field" name="title">
+          <input class="form-control required" id="dis-title-field" name="title">
         </div>
         <div class="form-group">
           <label class="control-label" for="dis-timelines">Timelines</label>

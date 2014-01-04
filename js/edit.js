@@ -90,7 +90,7 @@ jQuery(function () {
   });
 
   $('a.edit-subscription').click(function (e) {
-    var user_id = $(this).attr('data-id');    
+    var id = $(this).attr('data-id');    
 
     var $form = $('#subscription-form');
     $form.attr('action', '/user/edit_subscription');
@@ -98,7 +98,6 @@ jQuery(function () {
 
     var
       $parent = $(this).parents('td'),
-      id = $parent.siblings('td.id-val').text()
       source_url = $parent.siblings('td.source_url-val').text(),
       realname = $parent.siblings('td.realname-val').text();
 
@@ -136,7 +135,7 @@ jQuery(function () {
   });
   
   $('a.edit-timeline').click(function (e) {
-    var tl_id = $(this).attr('data-id');    
+    var id = $(this).attr('data-id');    
 
     var $form = $('#timeline-form');
     $form.attr('action', '/user/edit_timeline');
@@ -144,7 +143,6 @@ jQuery(function () {
 
     var
       $parent = $(this).parents('td'),
-      id = $parent.siblings('td.id-val').text()
       user_id = $parent.siblings('td.user_id-val').attr('data-user_id'),
       name = $parent.siblings('td.name-val').text(),
       title = $parent.siblings('td.title-val').text(),
@@ -174,16 +172,40 @@ jQuery(function () {
     $form.attr('action', '/user/add_display');
     $('h4.modal-title', $form).text('Add display');
 
-    $('#sub-id-field').val('');
-    $('#sub-source_url-field').val('');
-    $('#sub-realname-field').val('');
+    $('#dis-user_id-field').val('');
+    $('#dis-title-field').val('');
+    $('#dis-timelines-field').val('');
 
-    $('#edit-subscription').modal('show');
+    $('#edit-display').modal('show');
 
     e.preventDefault();
   });
   
   $('a.edit-display').click(function (e) {
+    var id = $(this).attr('data-id');    
+
+    var $form = $('#display-form');
+    $form.attr('action', '/user/edit_display');
+    $('h4.modal-title', $form).text('Edit display');
+
+    var
+      $parent = $(this).parents('td'),
+      user_id = $parent.siblings('td.user_id-val').attr('data-user_id'),
+      title = $parent.siblings('td.title-val').text(),
+      timelines = [];
+    
+    $parent.siblings('td.timelines-val').find('li').each(function () {
+      timelines.push($(this).attr('data-id'));
+    });
+
+    $('#dis-id-field').val(id);
+    $('#dis-user_id-field').val(user_id);
+    $('#dis-title-field').val(title);
+    $('#dis-timelines-field').val(timelines.join(','));
+
+    $('#edit-display').modal('show');
+
+    e.preventDefault();
   });
 
   $('#display-form').submit(function (e) {
@@ -199,16 +221,37 @@ jQuery(function () {
     $form.attr('action', '/user/add_location');
     $('h4.modal-title', $form).text('Add location');
 
-    $('#sub-id-field').val('');
-    $('#sub-source_url-field').val('');
-    $('#sub-realname-field').val('');
+    $('#loc-id-field').val('');
+    $('#loc-title-field').val('');
+    $('#loc-longitude-field').val('');
+    $('#loc-latitude-field').val('');
 
-    $('#edit-subscription').modal('show');
+    $('#edit-location').modal('show');
 
     e.preventDefault();
   });
   
   $('a.edit-location').click(function (e) {
+    var id = $(this).attr('data-id');    
+
+    var $form = $('#location-form');
+    $form.attr('action', '/user/edit_location');
+    $('h4.modal-title', $form).text('Edit location');
+
+    var
+      $parent = $(this).parents('td'),
+      title = $parent.siblings('td.title-val').text(),
+      longitude = $parent.siblings('td.longitude-val').text(),
+      latitude = $parent.siblings('td.latitude-val').text();
+
+    $('#loc-id-field').val(id);
+    $('#loc-title-field').val(title);
+    $('#loc-longitude-field').val(longitude);
+    $('#loc-latitude-field').val(latitude);
+
+    $('#edit-location').modal('show');
+
+    e.preventDefault();
   });
 
   $('#location-form').submit(function (e) {

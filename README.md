@@ -9,7 +9,9 @@ SQlite needs to be enabled, too.
 
 ## Try it
 
-Get the [PHAR archive](https://github.com/oschettler/entangle/raw/master/entangle.phar). Run it with
+The software is what drives [entangle!](https://entangle.de). So, if you just want to look around, why not register yourself an account there?
+
+If you want to try it at home, get the [PHAR archive](https://github.com/oschettler/entangle/raw/master/entangle.phar). Run it with
 
 <pre>
     php -S 0.0.0.0:1111 entangle.phar

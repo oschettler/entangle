@@ -4,7 +4,7 @@ Lifelines connected
 
 ## Try it
 
-Get the PHAR archive. Run it with
+Get the [PHAR archive](https://github.com/oschettler/entangle/raw/master/entangle.phar). Run it with
 
 <pre>
     php -S 0.0.0.0:1111 entangle.phar

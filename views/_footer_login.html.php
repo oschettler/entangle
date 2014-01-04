@@ -19,7 +19,7 @@
       <div class="modal-footer">
         <div class="pull-left">
           <a href="/user/register">Register account</a>
-          &middot; <a href="/user/password">Forgot password</a> 
+          <!-- &middot; <a href="/user/password">Forgot password</a> -->
         </div>
         <button type="submit" class="btn btn-primary">Login</button>
       </div>

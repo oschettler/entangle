@@ -51,12 +51,17 @@ if (!file_exists("{$here}/settings.ini")) {
   );
 }
 config('source', "{$here}/settings.ini");
+
+if (empty(config('db.name'))) {
+  config('db.name', "sqlite:{$here}/entangle.sqlite");
+}
+
 $needs_init = FALSE;
-if (!file_exists("{$here}/entangle.sqlite")) {
+if (!file_exists(preg_replace('/^sqlite:/', '', config('db.name')))) {
   $needs_init = TRUE;
 }
 
-ORM::configure("sqlite:{$here}/entangle.sqlite");
+ORM::configure(config('db.name'));
 ORM::configure('return_result_sets', TRUE);
 
 if ($needs_init) {
@@ -103,6 +108,7 @@ function mkdate($date) {
 
 prefix('/user', function () { include 'user.php'; });
 prefix('/event', function () { include 'event.php'; });
+prefix('/oauth', function () { include 'oauth.php'; });
 
 /**
  * Prepare events for display in a timeline

@@ -1,3 +1,0 @@
-[submodule "externals/phptal"]
-	path = externals/phptal
-	url = git://github.com/pornel/PHPTAL

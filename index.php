@@ -17,7 +17,8 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
-const VERSION = '0.1.1';
+const VERSION = '0.1.2';
+const NO_COL = 3;
 
 ini_set('display_errors', TRUE);
 error_reporting(-1);
@@ -29,6 +30,7 @@ session_start();
 
 require_once 'vendor/autoload.php';
 use Entangle\DateTime;
+use Entangle\TimeVector;
 
 config('dispatch.views', 'views');
 
@@ -96,172 +98,6 @@ prefix('/user', function () { include 'user.php'; });
 prefix('/event', function () { include 'event.php'; });
 prefix('/oauth', function () { include 'oauth.php'; });
 
-/**
- * Prepare events for display in a timeline
- */
-function points($events, $future = FALSE) {
-  $timelines = array();
-  $points = array();
-  $point_count = 0;
-
-  /*
-   * If we show anniversaries one year into the future,
-   * mark TODAY with a special event
-   */
-  if ($future) {
-    $today = strftime('%Y-%m-%d');
-    $points[$today][] = (object)array(
-      'type' => 'now',
-      'title' => '<strong>Heute</strong>',
-      'event' => (object)array(
-        'id' => 'now',
-        'public' => FALSE,
-        'timeline_id' => NULL,
-        'date_from' => $today,
-        'duration' => 1,
-        'duration_unit' => 'd',
-        'user_id' => $_SESSION['user']->id,
-      )
-    );
-    $point_count++;
-  }
-
-  foreach ($events as $event) {
-    $timelines[$event->timeline_id] = TRUE;
-
-    $date_from = new DateTime($event->date_from);
-    //var_dump(array($date_from, $event->date_from, $event->date_to, $event->anniversary));
-
-    /*
-     * Calculate end point
-     */
-
-    $date_to = NULL;
-    if (!empty($event->date_to)) {
-      if ($event->date_to == $event->date_from) {
-        $date_to = $date_from->add(new DateInterval('PT86399S'));
-      }
-      else {
-        $date_to = new DateTime($event->date_to);
-        //var_dump(array($date_from, $date_to));
-      }
-    }
-    else
-    if (!empty($event->duration)) {
-      if (!($event->duration == 1 && $event->duration_unit == 'd')) {
-
-        switch ($event->duration_unit) {
-          case 'y':
-            $date_to = $date_from->add(new DateInterval('P' . $event->duration . 'Y'));
-            break;
-
-          case 'm':
-            $date_to = $date_from->add(new DateInterval('P' . $event->duration . 'M'));
-            break;
-
-          case 'd':
-          default:
-            $date_to = $date_from->add(new DateInterval('P' . $event->duration . 'D'));
-            break;
-        }
-      }
-    } // duration
-
-    if ($date_to) {
-      // An interval
-      $points[$date_from->format('Y-m-d')][] = (object)array(
-        'type' => 'from',
-        'event' => $event,
-      );
-      $point_count++;
-
-      /*
-       * If precision of the start date is "one year", only add end date
-       * if the duration is more than a year
-       */
-      $has_date_to = TRUE;
-      if (empty($event->date_to) && preg_match('/^\d{4}$/', $event->date_from)) {
-        /*
-         * DateTimeImmutable.diff does not work
-         * This is only fixed in PHP5.5 as of 2013-10
-         * https://bugs.php.net/bug.php?id=65768
-         */
-        $diff = date_diff(
-          new \DateTime($date_to->format('Y-m-d')),
-          new \DateTime($date_from->format('Y-m-d'))
-        );
-        if ($diff->y < 1) {
-          $has_date_to = FALSE;
-        }
-      }
-
-      if ($has_date_to) {
-        $points[$date_to->format('Y-m-d')][] = (object)array(
-          'type' => 'to',
-          'event' => $event,
-        );
-        $point_count++;
-      }
-    }
-    else {
-      // A single point
-      $points[$date_from->format('Y-m-d')][] = (object)array(
-        'type' => 'on',
-        'event' => $event,
-      );
-      $point_count++;
-    }
-
-    /*
-     * Calculate anniversaries
-     */
-
-    if (!empty($event->anniversary)) {
-      if ($future) {
-        // Show anniversaries one year into the future
-        $next_year = (new DateTime('NOW'))->add(new DateInterval('P1Y'));
-      }
-      else {
-        // Show only past anniversaries
-        $next_year = new DateTime('NOW');
-      }
-
-      $i = 0;
-      do {
-        $i++;
-        $anniversary = $date_from->add(new DateInterval('P' . $i . 'Y'));
-      /*
-      var_dump(array("ANN",
-        get_class($date_from),
-        $date_from,
-        $anniversary,
-        $next_year->diff(new DateTime($anniversary->format('Y-m-d')))->y
-      ));
-      */
-         $points[$anniversary->format('Y-m-d')][] = (object)array(
-          'type' => 'anniversary',
-          'event' => $event,
-          'title' => sprintf($event->anniversary, $i),
-        );
-        $point_count++;
-      }
-
-      /*
-       * Comparing DateTimeImmutable does not work, neither does DateTimeImmutable->diff
-       * @see https://bugs.php.net/bug.php?id=65768
-       */
-      while ($next_year->diff(new DateTime($anniversary->format('Y-m-d')))->y > 0);
-    }
-
-  }
-  krsort($points, SORT_REGULAR);
-  return (object)array(
-    'points' => $points,
-    'count' => $point_count,
-    'timelines' => array_keys($timelines),
-  );
-}
-
 on('GET', '/events', function () {
 
   if (!session('user')) {
@@ -270,8 +106,31 @@ on('GET', '/events', function () {
     ));
   }
 
+  $events = ORM::for_table('event')
+    ->select('event.*')
+    ->select('location.title', 'location_title')
+    ->select('user.id', 'user_id')
+    ->select('user.realname', 'user_realname')
+    ->left_outer_join('location', array('event.location_id', '=', 'location.id'))
+    ->left_outer_join('timeline', array('event.timeline_id', '=', 'timeline.id'))
+    ->left_outer_join('user', array('timeline.user_id', '=', 'user.id'))
+    ->order_by_desc('date_from')
+    ->order_by_asc('timeline_id')
+    ->limit(50)
+    ->find_result_set();
+
+  $columns = array();
+  //for ($i = 0; $i < count($events); $i++) {
+  foreach ($events as $i => $event) {
+    $col = $i % NO_COL;
+    $columns[$col][] = $event;
+  }
+
   render('events', array(
     'page_title' => 'Events',
+    'events' => $events,
+    'columns' => $columns,
+    'column_width' => 12 / NO_COL,
   ));
 });
 
@@ -330,7 +189,8 @@ on('GET', '/', function () {
     $events->where('user_id', $_SESSION['user']->id);
   }
 
-  $points = points($events->find_result_set(), /*future*/TRUE);
+  $vector = new TimeVector($events->find_result_set(), /*future*/TRUE);
+  $points = $vector->points();
 
   $named_timelines = ORM::for_table('timeline')
   	->select_many('timeline.id', 'timeline.user_id', 'timeline.title')

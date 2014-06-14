@@ -2,6 +2,10 @@
 
 namespace Entangle;
 
+/**
+ * Wrapper for the built-in DateTime
+ * that clones on add() / diff() rather than change the date in place.
+ */
 class DateTime
 {
   private $date;

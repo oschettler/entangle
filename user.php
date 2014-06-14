@@ -136,7 +136,6 @@ on('GET', '/edit', function () {
     'timelines' => $timelines->find_result_set(),
     'displays' => $displays->find_result_set(),
     'locations' => $locations,
-    'events' => $events,
   ));
 });
 

@@ -97,48 +97,6 @@ function stack($name, $value = null) {
 
 prefix('/user', function () { include 'user.php'; });
 prefix('/event', function () { include 'event.php'; });
-prefix('/oauth', function () { include 'oauth.php'; });
-
-on('GET', '/events(/:page@\d+)', function ($page) {
-
-  if (!session('user')) {
-    return render('homepage', array(
-      'page_title' => 'Entangled lifes.',
-    ));
-  }
-
-  if (empty($page)) {
-    $page = 0;
-  }
-
-  $events = ORM::for_table('event')
-    ->select('event.*')
-    ->select('location.title', 'location_title')
-    ->select('user.id', 'user_id')
-    ->select('user.realname', 'user_realname')
-    ->left_outer_join('location', array('event.location_id', '=', 'location.id'))
-    ->left_outer_join('timeline', array('event.timeline_id', '=', 'timeline.id'))
-    ->left_outer_join('user', array('timeline.user_id', '=', 'user.id'))
-    ->order_by_desc('date_from')
-    ->order_by_asc('timeline_id')
-    ->offset($page * PAGE_SIZE)
-    ->limit(PAGE_SIZE)
-    ->find_result_set();
-
-  $columns = array();
-  //for ($i = 0; $i < count($events); $i++) {
-  foreach ($events as $i => $event) {
-    $col = $i % NO_COL;
-    $columns[$col][] = $event;
-  }
-
-  render('events', array(
-    'page_title' => 'Events',
-    'events' => $events,
-    'columns' => $columns,
-    'column_width' => 12 / NO_COL,
-  ));
-});
 
 on('GET', '/', function () {
 

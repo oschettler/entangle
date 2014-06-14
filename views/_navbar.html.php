@@ -13,7 +13,6 @@
         <?php
         foreach (array(
           '/' => 'Zeitleiste',
-          //'/events' => 'Ereignisse',
         ) as $link => $title):
           $active = $link == parse_url($_SERVER['REQUEST_URI'], PHP_URL_PATH)
             ? ' class="active"' : '';
@@ -32,7 +31,7 @@
         </li>
           <?php
           if (!empty($_SESSION['user']->id)):
-            $url = !empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] 
+            $url = !empty($_SERVER['HTTPS']) && $_SERVER['HTTPS']
               ? 'https://' : 'http://';
             $url .= $_SERVER['HTTP_HOST'] . '/';
             $url .= $_SESSION['user']->username;

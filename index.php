@@ -28,6 +28,7 @@ session_set_cookie_params(86400 * 7);
 session_start();
 
 require_once 'vendor/autoload.php';
+use Entangle\DateTime;
 
 config('dispatch.views', 'views');
 
@@ -91,21 +92,6 @@ function stack($name, $value = null) {
   return array_push($_stash[$name], $value);
 }
 
-function mkdate($date) {
-  if (preg_match('/^\d{4}-\d{2}-\d{2}$/', $date)) {
-    $result = $date;
-  }
-  else
-  if (preg_match('/^\d{4}-\d{2}$/', $date)) {
-    $result = $date . '-01';
-  }
-  else
-  if (preg_match('/^\d{4}$/', $date)) {
-    $result = $date . '-01-01';
-  }
-  return new DateTimeImmutable($result);
-}
-
 prefix('/user', function () { include 'user.php'; });
 prefix('/event', function () { include 'event.php'; });
 prefix('/oauth', function () { include 'oauth.php'; });
@@ -143,7 +129,7 @@ function points($events, $future = FALSE) {
   foreach ($events as $event) {
     $timelines[$event->timeline_id] = TRUE;
 
-    $date_from = mkdate($event->date_from);
+    $date_from = new DateTime($event->date_from);
     //var_dump(array($date_from, $event->date_from, $event->date_to, $event->anniversary));
 
     /*
@@ -156,7 +142,7 @@ function points($events, $future = FALSE) {
         $date_to = $date_from->add(new DateInterval('PT86399S'));
       }
       else {
-        $date_to = mkdate($event->date_to);
+        $date_to = new DateTime($event->date_to);
         //var_dump(array($date_from, $date_to));
       }
     }
@@ -201,8 +187,8 @@ function points($events, $future = FALSE) {
          * https://bugs.php.net/bug.php?id=65768
          */
         $diff = date_diff(
-          new DateTime($date_to->format('Y-m-d')),
-          new DateTime($date_from->format('Y-m-d'))
+          new \DateTime($date_to->format('Y-m-d')),
+          new \DateTime($date_from->format('Y-m-d'))
         );
         if ($diff->y < 1) {
           $has_date_to = FALSE;

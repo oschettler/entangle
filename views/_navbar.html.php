@@ -10,6 +10,20 @@
     </div>
     <div class="navbar-collapse collapse">
       <ul class="nav navbar-nav">
+        <?php
+        foreach (array(
+          '/' => 'Zeitleiste',
+          //'/events' => 'Ereignisse',
+        ) as $link => $title):
+          $active = $link == parse_url($_SERVER['REQUEST_URI'], PHP_URL_PATH)
+            ? ' class="active"' : '';
+          ?>
+          <li<?php echo $active; ?>>
+            <a href="<?php echo $link; ?>"><?php echo $title; ?></a>
+          </li>
+          <?php
+        endforeach;
+        ?>
         <li>
           <a href="http://docs.entangle.de/">Documentation</a>
         </li>

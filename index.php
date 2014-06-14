@@ -16,8 +16,8 @@
  *
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
- */  
-const VERSION = '0.1.0';
+ */
+const VERSION = '0.1.1';
 
 ini_set('display_errors', TRUE);
 error_reporting(-1);
@@ -46,13 +46,13 @@ if (!file_exists("{$here}/settings.ini")) {
       readfile('css/' . params('file'));
     });
   }
-  file_put_contents("{$here}/settings.ini", 
+  file_put_contents("{$here}/settings.ini",
     "; entangle! - https://entangle.de\n; Enter config options here\n"
   );
 }
 config('source', "{$here}/settings.ini");
 
-if (empty(config('db.name'))) {
+if (!config('db.name')) {
   config('db.name', "sqlite:{$here}/entangle.sqlite");
 }
 
@@ -117,7 +117,7 @@ function points($events, $future = FALSE) {
   $timelines = array();
   $points = array();
   $point_count = 0;
-  
+
   /*
    * If we show anniversaries one year into the future,
    * mark TODAY with a special event
@@ -131,7 +131,7 @@ function points($events, $future = FALSE) {
         'id' => 'now',
         'public' => FALSE,
         'timeline_id' => NULL,
-        'date_from' => $today, 
+        'date_from' => $today,
         'duration' => 1,
         'duration_unit' => 'd',
         'user_id' => $_SESSION['user']->id,
@@ -139,17 +139,17 @@ function points($events, $future = FALSE) {
     );
     $point_count++;
   }
-  
+
   foreach ($events as $event) {
     $timelines[$event->timeline_id] = TRUE;
-    
-    $date_from = mkdate($event->date_from);    
+
+    $date_from = mkdate($event->date_from);
     //var_dump(array($date_from, $event->date_from, $event->date_to, $event->anniversary));
-    
+
     /*
      * Calculate end point
      */
-    
+
     $date_to = NULL;
     if (!empty($event->date_to)) {
       if ($event->date_to == $event->date_from) {
@@ -163,16 +163,16 @@ function points($events, $future = FALSE) {
     else
     if (!empty($event->duration)) {
       if (!($event->duration == 1 && $event->duration_unit == 'd')) {
-        
+
         switch ($event->duration_unit) {
           case 'y':
             $date_to = $date_from->add(new DateInterval('P' . $event->duration . 'Y'));
             break;
-      
+
           case 'm':
             $date_to = $date_from->add(new DateInterval('P' . $event->duration . 'M'));
             break;
-      
+
           case 'd':
           default:
             $date_to = $date_from->add(new DateInterval('P' . $event->duration . 'D'));
@@ -184,12 +184,12 @@ function points($events, $future = FALSE) {
     if ($date_to) {
       // An interval
       $points[$date_from->format('Y-m-d')][] = (object)array(
-        'type' => 'from', 
+        'type' => 'from',
         'event' => $event,
       );
       $point_count++;
-  
-      /* 
+
+      /*
        * If precision of the start date is "one year", only add end date
        * if the duration is more than a year
        */
@@ -208,11 +208,11 @@ function points($events, $future = FALSE) {
           $has_date_to = FALSE;
         }
       }
-      
+
       if ($has_date_to) {
         $points[$date_to->format('Y-m-d')][] = (object)array(
-          'type' => 'to', 
-          'event' => $event, 
+          'type' => 'to',
+          'event' => $event,
         );
         $point_count++;
       }
@@ -220,16 +220,16 @@ function points($events, $future = FALSE) {
     else {
       // A single point
       $points[$date_from->format('Y-m-d')][] = (object)array(
-        'type' => 'on', 
+        'type' => 'on',
         'event' => $event,
       );
       $point_count++;
     }
-    
+
     /*
      * Calculate anniversaries
      */
-    
+
     if (!empty($event->anniversary)) {
       if ($future) {
         // Show anniversaries one year into the future
@@ -239,7 +239,7 @@ function points($events, $future = FALSE) {
         // Show only past anniversaries
         $next_year = new DateTime('NOW');
       }
-     
+
       $i = 0;
       do {
         $i++;
@@ -259,15 +259,15 @@ function points($events, $future = FALSE) {
         );
         $point_count++;
       }
-      
+
       /*
        * Comparing DateTimeImmutable does not work, neither does DateTimeImmutable->diff
        * @see https://bugs.php.net/bug.php?id=65768
        */
       while ($next_year->diff(new DateTime($anniversary->format('Y-m-d')))->y > 0);
-    }    
-    
-  } 
+    }
+
+  }
   krsort($points, SORT_REGULAR);
   return (object)array(
     'points' => $points,
@@ -276,7 +276,20 @@ function points($events, $future = FALSE) {
   );
 }
 
-on('GET', '/', function () { 
+on('GET', '/events', function () {
+
+  if (!session('user')) {
+    return render('homepage', array(
+      'page_title' => 'Entangled lifes.',
+    ));
+  }
+
+  render('events', array(
+    'page_title' => 'Events',
+  ));
+});
+
+on('GET', '/', function () {
 
   if (!session('user')) {
     return render('homepage', array(
@@ -288,14 +301,14 @@ on('GET', '/', function () {
     ->where_equal('user_id', $_SESSION['user']->id)
     ->where_equal('title', 'Start')
     ->find_one();
-  
+
   $timelines = array();
   $event_timelines = array();
   foreach (ORM::for_table('entangled_timeline')
     ->left_outer_join('timeline', array('entangled_timeline.timeline_id', '=', 'timeline.id'))
     ->where_equal('entangled_timeline.entangled_id', $entangled->id)
     ->find_many() as $timeline) {
-    
+
     if (empty($timeline->timelines)) {
       $timeline->timelines = array();
     }
@@ -323,7 +336,7 @@ on('GET', '/', function () {
     ->where_in('timeline_id', $event_timelines)
     ->order_by_desc('date_from')
     ->order_by_asc('timeline_id');
-  
+
   /*
    * Make sure the logged-in user either has ID=1 or the events belong to her
    */
@@ -362,7 +375,7 @@ on('GET', '/:username', function () {
   if (!$user) {
     error(500, 'No such user');
   }
-  
+
   $events = ORM::for_table('event')
     ->select('event.*')
     ->select('location.title', 'location_title')
@@ -383,27 +396,27 @@ on('GET', '/:username', function () {
   if (!empty($since)) {
     $events->where_gt('updated', $since);
   }
-  
+
   if (in_array('application/json', explode(',', $_SERVER["HTTP_ACCEPT"]))) {
     echo json_out($events->find_array());
     return;
   }
- 
+
   $points = points($events->find_result_set());
   if (0 == count($points->timelines)) {
     // Pointless to render anything if there are no timelines with public events
     error(500, "No public events");
   }
   else {
-  
+
     stack('footer', partial('footer_login'));
-  
+
     $timelines = ORM::for_table('timeline')
     	->select_many('id', 'title')
       ->where_in('id', $points->timelines)
       ->order_by_asc('title')
     	->find_result_set();
-  
+
     render('index', array(
       'page_title' => $user->realname,
       'timelines' => $timelines,

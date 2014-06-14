@@ -19,6 +19,7 @@
  */
 const VERSION = '0.1.2';
 const NO_COL = 3;
+const PAGE_SIZE = 20;
 
 ini_set('display_errors', TRUE);
 error_reporting(-1);
@@ -98,12 +99,16 @@ prefix('/user', function () { include 'user.php'; });
 prefix('/event', function () { include 'event.php'; });
 prefix('/oauth', function () { include 'oauth.php'; });
 
-on('GET', '/events', function () {
+on('GET', '/events(/:page@\d+)', function ($page) {
 
   if (!session('user')) {
     return render('homepage', array(
       'page_title' => 'Entangled lifes.',
     ));
+  }
+
+  if (empty($page)) {
+    $page = 0;
   }
 
   $events = ORM::for_table('event')
@@ -116,7 +121,8 @@ on('GET', '/events', function () {
     ->left_outer_join('user', array('timeline.user_id', '=', 'user.id'))
     ->order_by_desc('date_from')
     ->order_by_asc('timeline_id')
-    ->limit(50)
+    ->offset($page * PAGE_SIZE)
+    ->limit(PAGE_SIZE)
     ->find_result_set();
 
   $columns = array();

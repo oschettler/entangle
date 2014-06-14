@@ -113,7 +113,11 @@ class TimeVector
       $next_year->diff(new DateTime($anniversary->format('Y-m-d')))->y
     ));
     */
-      $this->addPoint($anniversary, 'anniversary', $event);
+      $this->addPoint($anniversary,
+        'anniversary',
+        $event,
+        sprintf($event->anniversary, $i)
+      );
     }
 
     /*

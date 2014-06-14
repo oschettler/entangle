@@ -16,8 +16,8 @@
  *
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
- */  
-const VERSION = '0.1.0';
+ */
+const VERSION = '0.1.1';
 
 ini_set('display_errors', TRUE);
 error_reporting(-1);
@@ -46,13 +46,13 @@ if (!file_exists("{$here}/settings.ini")) {
       readfile('css/' . params('file'));
     });
   }
-  file_put_contents("{$here}/settings.ini", 
+  file_put_contents("{$here}/settings.ini",
     "; entangle! - https://entangle.de\n; Enter config options here\n"
   );
 }
 config('source', "{$here}/settings.ini");
 
-if (empty(config('db.name'))) {
+if (!config('db.name')) {
   config('db.name', "sqlite:{$here}/entangle.sqlite");
 }
 

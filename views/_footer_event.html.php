@@ -17,7 +17,7 @@
       			$own_timelines = array();
       			$other_timelines = array();
       			foreach ($named_timelines as $tl) {
-      			  $tl_title = $tl->title;
+              if ($tl->timelines) continue;
       			  if ($tl->user_id == $_SESSION['user']->id) {
       			    $own_timelines[] = (object)array(
       			      'owner' => $tl->user_realname,

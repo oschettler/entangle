@@ -157,7 +157,7 @@ on('GET', '/', function () {
   $points = $vector->points();
 
   $named_timelines = ORM::for_table('timeline')
-  	->select_many('timeline.id', 'timeline.user_id', 'timeline.title')
+  	->select_many('timeline.id', 'timeline.user_id', 'timeline.title', 'timeline.timelines')
     ->select('user.realname', 'user_realname')
     ->left_outer_join('user', array('timeline.user_id', '=', 'user.id'))
     ->order_by_asc('user_realname', 'title')
@@ -208,7 +208,7 @@ on('GET', '/:username', function () {
   }
 
   if (in_array('application/json', explode(',', $_SERVER["HTTP_ACCEPT"]))) {
-    echo json_out($events->find_array());
+    echo json($events->find_array());
     return;
   }
 

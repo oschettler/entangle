@@ -21,14 +21,14 @@
       			  if ($tl->user_id == $_SESSION['user']->id) {
       			    $own_timelines[] = (object)array(
       			      'owner' => $tl->user_realname,
-      			      'id' => $tl->id, 
+      			      'id' => $tl->id,
       			      'title' => $tl->title
                 );
         			}
         			else {
       			    $other_timelines[] = (object)array(
       			      'owner' => $tl->user_realname,
-      			      'id' => $tl->id, 
+      			      'id' => $tl->id,
       			      'title' => $tl->user_realname . ': ' . $tl->title
       			    );
       			  }
@@ -43,7 +43,7 @@
                 ?>
                 <optgroup label="<?php echo addslashes($tl->owner); ?>">
                 <?php
-              }              
+              }
               ?>
               <option value="<?php echo $tl->id; ?>"><?php echo $tl->title; ?></option>
       			  <?php
@@ -80,7 +80,7 @@
           <div class="col-md-6">
             <div class="form-group">
               <label class="control-label" for="date_from">From</label>
-              <input class="form-control" id="date_from-field" name="date_from">
+              <input class="form-control" type="date" id="date_from-field" name="date_from">
             </div>
             <div class="form-group">
               <label class="control-label" for="anniversary">Anniversary</label>
@@ -90,7 +90,7 @@
           <div class="col-md-6">
             <div class="form-group">
               <label class="control-label" for="date_to">Until</label>
-              <input class="form-control" id="date_to-field" name="date_to">
+              <input class="form-control" type="date" id="date_to-field" name="date_to">
             </div>
             <label class="control-label" for="duration">Duration</label>
             <div class="input-group">

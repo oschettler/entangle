@@ -1,26 +1,26 @@
 /**
  */
 jQuery(function () {
-  var 
+  var
     c = document.getElementById("spans"),
     ctx = c.getContext("2d");
 
   var top = $('#dates-1').get(0).getBoundingClientRect();
-  
+
   $spans = $('#spans');
   $table = $('table.events');
-  
+
   $spans.attr('width', 60);
   $spans.attr('height', $table.height());
   $spans.css('top', $('tbody', $table).position().top);
-  
+
   ctx.font = "16px Arial";
   ctx.lineWidth = 2;
-  
+
   var intervals = {};
-  
+
   $('span.date-end').each(function (i) {
-    var 
+    var
       here = $(this).get(0).getBoundingClientRect(),
       id = $(this).attr('x-id'),
       there = $('span.date-from[x-id="' + id + '"]').get(0).getBoundingClientRect(),
@@ -75,7 +75,7 @@ jQuery(function () {
   });
 
   $('a.edit-event').click(function (e) {
-    var event_id = $(this).attr('data-id');    
+    var event_id = $(this).attr('data-id');
 
     $.getJSON('/event/' + event_id, function (event) {
       var $form = $('#event-form');
@@ -91,13 +91,12 @@ jQuery(function () {
       $('#date_from-field').val(event.date_from);
       $('#date_to-field').val(event.date_to);
       $('#duration-field').val(event.duration);
-      
+
       if (event.duration_unit) {
         $('#unit-field').val(event.duration_unit);
         $('#unit-value').text(event.duration_unit);
       }
       $('#anniversary-field').val(event.anniversary);
-      
       $('#edit-event').modal('show');
     });
 
@@ -109,23 +108,23 @@ jQuery(function () {
     $('#unit-field').val(unit);
     $('#unit-value').text(unit);
     $(this).parents('.dropdown-menu').siblings('.dropdown-toggle').dropdown('toggle');
-    
+
     e.preventDefault();
   });
-  
+
   $('#event-form').submit(function (e) {
-    var 
+    var
       $form = $(this),
       action = $form.attr('action'),
       method = $form.attr('method');
-    
+
     var valid = true;
     var msg = [];
     $('input,textarea', $form).each(function () {
-      var 
+      var
         name = $(this).attr('name'),
         val = $(this).val();
-      
+
       switch (name) {
         case 'title':
           if (val.match(/^\s*$/)) {
@@ -134,7 +133,7 @@ jQuery(function () {
             msg.push(name + ': May not be empty');
           }
           break;
-      
+
         case 'date_from':
         case 'date_to':
           if (name == 'date_to' && val == '') {
@@ -153,7 +152,7 @@ jQuery(function () {
           valid = false;
           msg.push(name + ': Give either YYYY, YYYY-mm, or YYYY-mm-dd');
           break;
-        
+
         case 'duration':
           if (val == '' || val.match(/^\d+(\.\d*)?$/)) {
             return;
@@ -167,9 +166,9 @@ jQuery(function () {
           break;
       }
     });
-    
+
     var $alert = $('.modal-content .alert');
-    
+
     if (valid) {
       $.ajax({
         url: action,
@@ -182,9 +181,9 @@ jQuery(function () {
         },
         error: function (xhr, textStatus, errorThrown) {
           $('.message', $alert).text(errorThrown);
-          
+
           $alert.show();
-  
+
           setTimeout(function () {
             $alert.slideUp('fast');
           }, 3000);
@@ -193,19 +192,19 @@ jQuery(function () {
     }
     else {
       $('.message', $alert).html(msg.join('<br>'));
-      
+
       $alert.show();
 
       setTimeout(function () {
         $alert.slideUp('fast');
       }, 3000);
     }
-        
+
     e.preventDefault();
   });
-  
+
   $('td.event span').popover();
 
   //$('table.events').fixedHeaderTable();
-  
+
 });

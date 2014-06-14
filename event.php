@@ -16,7 +16,7 @@
  *
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
- */  
+ */
 
 /**
  * Save event data for editing an existing event or creating a new one
@@ -28,11 +28,11 @@ function save_event($event) {
   if (empty($_POST['title']) || empty($_POST['date_from'])) {
     error(500, 'Please fill in title and date_from');
   }
-  
+
   $event->title = $_POST['title'];
-  
+
   $event->public = !empty($_POST['public']) && $_POST['public'] ? 1 : 0;
-  
+
   $event->description = $_POST['description'];
   $event->date_from = $_POST['date_from'];
 
@@ -41,7 +41,7 @@ function save_event($event) {
   if (!$event->id) {
     $event->created = $now;
   }
-  
+
   if (empty($_POST['timeline_id'])) {
     error(500, 'No timeline given');
   }
@@ -51,16 +51,16 @@ function save_event($event) {
    */
   if ($_SESSION['user']->id != 1) {
     $timeline = ORM::for_table('timeline')->find_one($_POST['timeline_id']);
-    
+
     if (!$timeline) {
       error(500, 'Not such timeline');
     }
-    
+
     if ($timeline->user_id != $_SESSION['user']->id) {
       error(500, 'Not permitted to edit this timeline');
     }
   }
-  
+
   $event->timeline_id = $_POST['timeline_id'];
 
   if (!empty($_POST['location'])) {
@@ -93,13 +93,13 @@ function save_event($event) {
 
   try {
     if ($event->save()) {
-      echo json_encode(array('success' => 'Saved event #' . $event->id . ' "' 
+      echo json_encode(array('success' => 'Saved event #' . $event->id . ' "'
         . addslashes($event->title) . '"'));
       return;
     }
     else {
       error(500, 'The event could not be saved');
-    }    
+    }
   }
   catch (Exception $e) {
     error(500, $e->getMessage());
@@ -110,7 +110,7 @@ function save_event($event) {
  * Take event data and create a new event
  */
 on('POST', '/add', function () {
-  save_event(ORM::for_table('event')->create());  
+  save_event(ORM::for_table('event')->create());
 });
 
 /**
@@ -129,7 +129,7 @@ on('POST', '/edit', function () {
   if (!$event) {
     error(500, 'No such event');
   }
-  
+
   /*
    * Make sure the logged-in user either has ID=1 or the event belongs to her
    */
@@ -154,11 +154,11 @@ on('GET', '/:id', function () {
     ->left_outer_join('location', array('event.location_id', '=', 'location.id'))
     ->left_outer_join('timeline', array('event.timeline_id', '=', 'timeline.id'))
     ->find_one();
-  
+
   if (!$event) {
     error(500, 'No such event');
   }
-  
+
   /*
    * Make sure the logged-in user either has ID=1 or the event belongs to her
    */
@@ -167,8 +167,8 @@ on('GET', '/:id', function () {
       error(500, 'Not permitted to view this event');
     }
   }
-    
-  json_out((object)array(
+
+  json((object)array(
     'id' => $event->id,
     'timeline_id' => $event->timeline_id,
     'location' => $event->location_title,

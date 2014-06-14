@@ -4,20 +4,20 @@
     <meta charset="utf-8">
     <title><?php echo config('site.name'), ' // ', strip_tags($page_title); ?></title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <link rel="stylesheet" href="//netdna.bootstrapcdn.com/bootstrap/3.0.0/css/bootstrap.min.css">
-    <link rel="stylesheet" href="//netdna.bootstrapcdn.com/bootstrap/3.0.0/css/bootstrap-theme.min.css">
+    <link rel="stylesheet" href="//netdna.bootstrapcdn.com/bootstrap/3.1.1/css/bootstrap.min.css">
+    <link rel="stylesheet" href="//netdna.bootstrapcdn.com/bootstrap/3.1.1/css/bootstrap-theme.min.css">
     <link rel="stylesheet" href="/css/styles.css">
     <link href="//netdna.bootstrapcdn.com/font-awesome/3.2.1/css/font-awesome.css" rel="stylesheet">
     <?php
     while ($style = stack('styles')) {
       ?>
       <link href="/css/<?php echo $style; ?>.css" rel="stylesheet">
-      <?php        
+      <?php
     }
     ?>
-    
+
     <script src="//code.jquery.com/jquery-1.10.2.min.js"></script>
-    <script src="//netdna.bootstrapcdn.com/bootstrap/3.0.0/js/bootstrap.min.js"></script>
+    <script src="//netdna.bootstrapcdn.com/bootstrap/3.1.1/js/bootstrap.min.js"></script>
     <script src="//rawgithub.com/carhartl/jquery-cookie/master/jquery.cookie.js"></script>
 
     <script type="text/javascript" src="/js/scripts.js"></script>
@@ -28,12 +28,12 @@
       }
       ?>
       <script type="text/javascript" src="<?php echo $script; ?>"></script>
-      <?php        
+      <?php
     }
     ?>
   </head>
   <body>
-    <?php 
+    <?php
     $msg = flash('error');
     if ($msg) {
       $class = 'danger';
@@ -42,7 +42,7 @@
       $msg = flash('success');
       $class = 'success';
     }
-    
+
     if ($msg) {
       echo partial('alert', array('class' => $class, 'msg' => $msg));
     }
@@ -56,8 +56,8 @@
     <div class="container">
       <?php echo content(); ?>
     </div>
-    
-    <?php 
+
+    <?php
     while ($footer = stack('footer')) {
       echo $footer;
     }

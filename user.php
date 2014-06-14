@@ -16,16 +16,14 @@
  *
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
- */  
+ */
 
 /**
  * For the /user prefix, only /login and /register may be used anonymously
  */
-before(function () {
-  $path = path();
-  
-  if (strpos($path, '/user') === 0 
-    && !in_array($path, array('/user/login', '/user/register')) 
+before(function ($method, $path) {
+  if (strpos($path, '/user') === 0
+    && !in_array($path, array('/user/login', '/user/register'))
     && empty($_SESSION['user'])) {
 
     flash('error', 'Not logged in');
@@ -41,7 +39,7 @@ on('POST', '/login', function () {
     flash('error', 'Please fill in username and password');
     redirect('/');
   }
-  
+
   $user = ORM::for_table('user')
     ->where_equal('username', $_POST['username'])
     ->where_equal('password', md5($_POST['password']))
@@ -58,7 +56,7 @@ on('POST', '/login', function () {
   else {
     flash('error', 'No such user' . md5($_POST['password']));
   }
-  
+
   redirect('/');
 });
 
@@ -88,12 +86,12 @@ on('GET', 'register', function () {
 on('GET', '/edit', function () {
   $user = ORM::for_table('user')
     ->find_one($_SESSION['user']->id);
-  
+
   $users = ORM::for_table('user');
   if ($_SESSION['user']->id != 1) {
     $users->where_equal('id', $_SESSION['user']->id);
   }
-  
+
   $subscriptions = ORM::for_table('user')
     ->where_not_null('source_url')
     ->find_result_set();
@@ -103,12 +101,12 @@ on('GET', '/edit', function () {
     ->select('user.realname', 'user_realname')
     ->left_outer_join('user', array('timeline.user_id', '=', 'user.id'))
     ->order_by_asc('user_id', 'name');
-    
+
   if ($_SESSION['user']->id != 1) {
      // not super-user
-     $timelines->where_equal('user_id', $_SESSION['user']->id); 
+     $timelines->where_equal('user_id', $_SESSION['user']->id);
   }
-  
+
   $displays = ORM::for_table('entangled_timeline')
     ->select('timeline.id', 'timeline_id')
     ->select('timeline.title', 'timeline_title')
@@ -120,16 +118,16 @@ on('GET', '/edit', function () {
     ->left_outer_join('entangled', array('entangled_timeline.entangled_id', '=', 'entangled.id'))
     ->left_outer_join('user', array('entangled.user_id', '=', 'user.id'))
     ->order_by_asc('user.id', 'entangled.id', 'timeline.id');
-    
+
   if ($_SESSION['user']->id != 1) {
      // not super-user
-     $displays->where_equal('user_id', $_SESSION['user']->id); 
+     $displays->where_equal('user_id', $_SESSION['user']->id);
   }
-  
+
   $locations = ORM::for_table('location')
     ->order_by_asc('title')
     ->find_result_set();
-    
+
   render('edit', array(
     'page_title' => 'Edit',
     'user' => $user,
@@ -138,6 +136,7 @@ on('GET', '/edit', function () {
     'timelines' => $timelines->find_result_set(),
     'displays' => $displays->find_result_set(),
     'locations' => $locations,
+    'events' => $events,
   ));
 });
 
@@ -167,30 +166,30 @@ function save_user($user, $redirect) {
 
     if (!empty($_SESSION['user']->id)) {
       $other->where_not_equal('id', $_SESSION['user']->id);
-    }      
-      
+    }
+
     $other->find_one();
     if ($other->count) {
       flash('error', ucfirst($field) . ' "' . addslashes($_POST[$field]) . '" already taken');
       redirect($redirect);
     }
   }
-  
+
   // email must be an email address
   if (!preg_match('/^\w\S*@\w+\.\S*\w+$/', $_POST['email'])) {
     flash('error', 'Invalid email address');
     redirect($redirect);
   }
-  
+
   $user->username = $_POST['username'];
   $user->email = $_POST['email'];
 
-  if (!empty($_POST['password'])) {  
+  if (!empty($_POST['password'])) {
     $user->password = md5($_POST['password']);
   }
 
   $user->realname = $_POST['realname'];
-  
+
   if ($user->id) {
     $user->updated = strftime('%Y-%m-%d %H:%M:%S');
   }
@@ -209,35 +208,35 @@ function save_subscription($user) {
       error(500, 'All fields are required');
     }
   }
-  
+
   $now = strftime('%Y-%m-%d %H:%M:%S');
-  
+
   if (!preg_match('#^https?://#i', $_POST['source_url'])) {
-    $user->source_url = 'http://' . $_POST['source_url']; 
+    $user->source_url = 'http://' . $_POST['source_url'];
   }
   else {
     $user->source_url = $_POST['source_url'];
-  }  
-  
+  }
+
   $url = parse_url($user->source_url);
-  
+
   if (empty($url['path']) || strlen($url['path']) == 1) {
     $path = time();
   }
   else {
     $path = substr($url['path'], 1);
   }
-  
+
   $user->username = $path . '@' . $url['host'];
   $user->realname = $_POST['realname'];
-  
+
   if ($user->id) {
     $user->updated = $now;
   }
   else {
     $user->created = $now;
   }
-  
+
   $user->save();
   return $user->id;
 }
@@ -247,9 +246,9 @@ function save_subscription($user) {
  */
 on('POST', '/add', function () {
   $user = ORM::for_table('user')->create();
-  
+
   save_subscription($user);
-  
+
   json_out(array('success' => "Subscription created"));
 });
 
@@ -263,13 +262,13 @@ on('POST', '/edit_subscription', function () {
 
   $user = ORM::for_table('user')
     ->find_one($_POST['id']);
-  
+
   if (!$user) {
     error(500, 'No such subscription');
   }
-  
+
   save_subscription($user);
-  
+
   json_out(array('success' => "Subscription changed"));
 });
 
@@ -278,9 +277,9 @@ on('POST', '/edit_subscription', function () {
  */
 on('POST', '/add_timeline', function () {
   $now = strftime('%Y-%m-%d %H:%M:%S');
-  
+
   $timeline = ORM::for_table('timeline')->create();
-  
+
   $fields = array('user_id', 'name', 'title');
   foreach ($fields as $field) {
     if (empty($_POST[$field])) {
@@ -288,17 +287,17 @@ on('POST', '/add_timeline', function () {
     }
     $timeline->{$field} = $_POST[$field];
   }
-  
+
   if ($_SESSION['user']->id != 1 // only super-user
     && $_SESSION['user']->id != $timeline->user_id) { // not self
-    
+
     error(500, 'Not allowed');
   }
-    
+
   $timeline->timelines = empty($_POST['timelines']) ? '' : $_POST['timelines'];
   $timeline->created = $now;
   $timeline->save();
-    
+
   json_out(array('success' => "Timeline added"));
 });
 
@@ -307,7 +306,7 @@ on('POST', '/add_timeline', function () {
  */
 on('POST', '/del_timeline/:id', function () {
   $id = params('id');
-  
+
   if (empty($id)) {
     error(500, 'No timeline given');
   }
@@ -316,13 +315,13 @@ on('POST', '/del_timeline/:id', function () {
   if (!$timeline) {
     error(500, 'No such timeline');
   }
-  
+
   if ($_SESSION['user']->id != 1 // only super-user
     && $_SESSION['user']->id != $timeline->user_id) { // not self
-    
+
     error(500, 'Not allowed');
   }
-  
+
   $timeline->delete();
 
   json_out(array('success' => "Timeline #{$id} deleted"));
@@ -341,9 +340,9 @@ on('POST', '/edit_timeline', function () {
   if (!$timeline) {
     error(500, 'No such timeline');
   }
-  
+
   $now = strftime('%Y-%m-%d %H:%M:%S');
-  
+
   $fields = array('name', 'title');
   foreach ($fields as $field) {
     if (empty($_POST[$field])) {
@@ -351,17 +350,17 @@ on('POST', '/edit_timeline', function () {
     }
     $timeline->{$field} = $_POST[$field];
   }
-  
+
   if ($_SESSION['user']->id != 1 // only super-user
     && $_SESSION['user']->id != $timeline->user_id) { // not self
-    
+
     error(500, 'Not allowed');
   }
-    
+
   $timeline->timelines = empty($_POST['timelines']) ? '' : $_POST['timelines'];
   $timeline->updated = $now;
   $timeline->save();
-    
+
   json_out(array('success' => "Timeline changed"));
 });
 
@@ -370,9 +369,9 @@ on('POST', '/edit_timeline', function () {
  */
 on('POST', '/add_display', function () {
   $now = strftime('%Y-%m-%d %H:%M:%S');
-  
+
   $display = ORM::for_table('display')->create();
-  
+
   $fields = array('user_id', 'title');
   foreach ($fields as $field) {
     if (empty($_POST[$field])) {
@@ -380,16 +379,16 @@ on('POST', '/add_display', function () {
     }
     $display->{$field} = $_POST[$field];
   }
-  
+
   if ($_SESSION['user']->id != 1 // only super-user
     && $_SESSION['user']->id != $display->user_id) { // not self
-    
+
     error(500, 'Not allowed');
   }
-    
+
   $display->created = $now;
   $display->save();
-  
+
   foreach (explode(',', $_POST['timelines']) as $tl_id) {
     $timeline = ORM::for_table('entangled_timeline')->create();
     $timeline->entangled_id = $display->id;
@@ -397,7 +396,7 @@ on('POST', '/add_display', function () {
     $timeline->created = $now;
     $timeline->save();
   }
-  
+
   json_out(array('success' => "Display added"));
 });
 
@@ -406,7 +405,7 @@ on('POST', '/add_display', function () {
  */
 on('POST', '/del_display/:id', function () {
   $id = params('id');
-  
+
   if (empty($id)) {
     error(500, 'No display given');
   }
@@ -415,13 +414,13 @@ on('POST', '/del_display/:id', function () {
   if (!$display) {
     error(500, 'No such display');
   }
-  
+
   if ($_SESSION['user']->id != 1 // only super-user
     && $_SESSION['user']->id != $display->user_id) { // not self
-    
+
     error(500, 'Not allowed');
   }
-  
+
   $timelines = ORM::for_table('entangled_timeline')
     ->where_equal('entangled_id', $id)
     ->find_many();
@@ -430,7 +429,7 @@ on('POST', '/del_display/:id', function () {
   }
 
   $display->delete();
-  
+
   json_out(array('success' => "Display #{$id} deleted"));
 });
 
@@ -446,9 +445,9 @@ on('POST', '/edit_display', function () {
   if (!$display) {
     error(500, 'No such display');
   }
-  
+
   $now = strftime('%Y-%m-%d %H:%M:%S');
-  
+
   $fields = array('user_id', 'title');
   foreach ($fields as $field) {
     if (empty($_POST[$field])) {
@@ -456,20 +455,20 @@ on('POST', '/edit_display', function () {
     }
     $display->{$field} = $_POST[$field];
   }
-  
+
   if ($_SESSION['user']->id != 1 // only super-user
     && $_SESSION['user']->id != $display->user_id) { // not self
-    
+
     error(500, 'Not allowed');
   }
-    
+
   $display->created = $now;
   $display->save();
-  
+
   $timelines = ORM::for_table('entangled_timeline')
     ->where_equal('entangled_id', $_POST['id'])
     ->delete_many();
-  
+
   foreach (explode(',', $_POST['timelines']) as $tl_id) {
     $timeline = ORM::for_table('entangled_timeline')->create();
     $timeline->entangled_id = $display->id;
@@ -477,7 +476,7 @@ on('POST', '/edit_display', function () {
     $timeline->created = $now;
     $timeline->save();
   }
-  
+
   json_out(array('success' => "Display changed"));
 });
 
@@ -486,9 +485,9 @@ on('POST', '/edit_display', function () {
  */
 on('POST', '/add_location', function () {
   $now = strftime('%Y-%m-%d %H:%M:%S');
-  
+
   $location = ORM::for_table('location')->create();
-  
+
   $fields = array('title');
   foreach ($fields as $field) {
     if (empty($_POST[$field])) {
@@ -496,14 +495,14 @@ on('POST', '/add_location', function () {
     }
     $location->{$field} = $_POST[$field];
   }
-  
+
   $location->longitude = empty($_POST['longitude']) ? '' : $_POST['longitude'];
   $location->latitude = empty($_POST['latitude']) ? '' : $_POST['latitude'];
   $location->created = $now;
   $location->save();
-    
+
   json_out(array('success' => "Location added"));
-  
+
 });
 
 /**
@@ -513,9 +512,9 @@ on('POST', '/del_location/:id', function () {
   if ($_SESSION['user']->id != 1) { // only super-user
     error(500, 'Not allowed');
   }
-  
+
   $id = params('id');
-  
+
   if (empty($id)) {
     error(500, 'No location given');
   }
@@ -524,9 +523,9 @@ on('POST', '/del_location/:id', function () {
   if (!$location) {
     error(500, 'No such location');
   }
-  
+
   $location->delete();
-  
+
   json_out(array('success' => "Location #{$id} deleted"));
 });
 
@@ -543,9 +542,9 @@ on('POST', '/edit_location', function () {
   if (!$location) {
     error(500, 'No such location');
   }
-  
+
   $now = strftime('%Y-%m-%d %H:%M:%S');
-  
+
   $fields = array('title');
   foreach ($fields as $field) {
     if (empty($_POST[$field])) {
@@ -553,24 +552,24 @@ on('POST', '/edit_location', function () {
     }
     $location->{$field} = $_POST[$field];
   }
-  
+
   $location->longitude = empty($_POST['longitude']) ? '' : $_POST['longitude'];
   $location->latitude = empty($_POST['latitude']) ? '' : $_POST['latitude'];
   $location->updated = $now;
   $location->save();
-    
-  json_out(array('success' => "Location changed"));  
+
+  json_out(array('success' => "Location changed"));
 });
 
 /**
  * Take data from a user registration form and create a new user account
- * In addition, create the required database entries and a first event. 
+ * In addition, create the required database entries and a first event.
  */
 on('POST', '/register', function () {
   $user = ORM::for_table('user')->create();
 
   $user_id = save_user($user, '/user/register');
-  
+
   $now = strftime('%Y-%m-%d %H:%M:%S');
 
   $timeline = ORM::for_table('timeline')->create(array(
@@ -580,7 +579,7 @@ on('POST', '/register', function () {
     'created' => $now,
   ));
   $timeline->save();
-  
+
   $event = ORM::for_table('event')->create(array(
     'timeline_id' => $timeline->id,
     'title' => 'Nutzerkonto angelegt',
@@ -591,21 +590,21 @@ on('POST', '/register', function () {
     'updated' => $now,
   ));
   $event->save();
-  
+
   $entangled = ORM::for_table('entangled')->create(array(
     'user_id' => $user_id,
     'title' => 'Start',
     'created' => $now
   ));
   $entangled->save();
-  
+
   $entangled_timeline = ORM::for_table('entangled_timeline')->create(array(
     'entangled_id' => $entangled->id,
     'timeline_id' => $timeline->id,
     'created' => $now,
   ));
   $entangled_timeline->save();
-  
+
   flash('success', 'User has been created. Please login');
   redirect('/');
 });
@@ -618,7 +617,7 @@ on('POST', '/edit_profile', function () {
     ->find_one($_SESSION['user']->id);
 
   save_user($user, '/user/edit');
-  
+
   flash('success', 'User has been saved');
   redirect('/user/edit');
 });
@@ -628,23 +627,23 @@ on('POST', '/edit_profile', function () {
  */
 on('GET', '/update/:user_id', function () {
   require_once 'app/api.php';
-  
+
   $lf = empty($_SERVER['DOCUMENT_ROOT']) ? "\n" : '<br>';
 
   $user_id = params('user_id');
-  
+
   $user = ORM::for_table('user')->find_one($user_id);
   if (!$user || empty($user->source_url)) {
     error(500, 'No such user');
   }
-  
+
   $api = new API;
   $events = $api->call($user->source_url);
-  
+
   $now = strftime('%Y-%m-%d %H:%M:%S');
 
   foreach ($events as $remote_event) {
-  
+
     $timeline = ORM::for_table('timeline')
       ->where('name', $remote_event->timeline_name)
       ->where('user_id', $user->id)
@@ -660,12 +659,12 @@ on('GET', '/update/:user_id', function () {
       $timeline->save();
       echo "New timeline #{$timeline->id} \"{$timeline->title}\"{$lf}";
     }
-  
+
     if (!empty($remote_event->location_title)) {
       $location = ORM::for_table('location')
         ->where('title', $remote_event->location_title)
         ->find_one();
-  
+
       if (!$location) {
         $location = ORM::for_table('location')->create(array(
           'title' => $remote_event->location_title,
@@ -682,7 +681,7 @@ on('GET', '/update/:user_id', function () {
     else {
       $location_id = NULL;
     }
-  
+
     $event = ORM::for_table('event')
       ->where('source_id', $remote_event->id)
       ->where('timeline_id', $timeline->id)
@@ -701,12 +700,12 @@ on('GET', '/update/:user_id', function () {
       echo "Event #{$event->id} \"{$event->title}\" locally edited - not replicated{$lf}";
       continue;
     }
-      
+
     $event->set(array(
       'source_id' => $remote_event->id,
       'replicated' => $now,
       'public' => 0, // Remote events are always non-public
-      
+
       'timeline_id' => $timeline->id,
       'location_id' => $location_id,
       'title' => $remote_event->title,
@@ -719,7 +718,7 @@ on('GET', '/update/:user_id', function () {
       'updated' => $remote_event->updated,
     ));
     $event->save();
-    
+
     echo "Saved #{$event->id}{$lf}";
   }
 });
@@ -728,17 +727,17 @@ on('POST', '/del/:id', function () {
   $id = params('id');
 
   if (
-       !$_SESSION['user'] // only logged-in 
+       !$_SESSION['user'] // only logged-in
     || $_SESSION['user']->id != 1 // only super-user
     || $_SESSION['user']->id == $id) { // not self
-    
+
     error(500, 'Not allowed');
   }
-  
+
   $user = ORM::for_table('user')->find_one($id);
-  
+
   $type = empty($user->source_url) ? 'User' : 'Subscription';
-  
+
   $user->delete();
 
   json_out(array('success' => "{$type} #{$id} deleted"));

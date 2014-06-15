@@ -1,6 +1,7 @@
 /**
  */
-jQuery(function () {
+
+function draw_spans() {
   var
     c = document.getElementById("spans"),
     ctx = c.getContext("2d");
@@ -52,6 +53,12 @@ jQuery(function () {
 
     ctx.stroke();
   });
+}
+
+jQuery(function () {
+  draw_spans();
+
+  $(window).resize(draw_spans);
 
   $('a.add-event').click(function (e) {
 

@@ -12,12 +12,12 @@
             "source": {
                 "type": "git",
                 "url": "https://github.com/bshaffer/oauth2-server-php.git",
-                "reference": "f28178ba35c6d9572fca3d34cf8d33066f276ac0"
+                "reference": "e30f26d780030fd818ec8da9776e0e10f13cc9f8"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/bshaffer/oauth2-server-php/zipball/f28178ba35c6d9572fca3d34cf8d33066f276ac0",
-                "reference": "f28178ba35c6d9572fca3d34cf8d33066f276ac0",
+                "url": "https://api.github.com/repos/bshaffer/oauth2-server-php/zipball/e30f26d780030fd818ec8da9776e0e10f13cc9f8",
+                "reference": "e30f26d780030fd818ec8da9776e0e10f13cc9f8",
                 "shasum": ""
             },
             "require": {
@@ -52,7 +52,7 @@
                 "oauth",
                 "oauth2"
             ],
-            "time": "2014-09-03 18:07:49"
+            "time": "2014-11-04 18:58:21"
         },
         {
             "name": "dispatch/dispatch",
@@ -266,12 +266,8 @@
             "time": "2014-03-15 19:29:30"
         }
     ],
-    "packages-dev": [
-
-    ],
-    "aliases": [
-
-    ],
+    "packages-dev": [],
+    "aliases": [],
     "minimum-stability": "stable",
     "stability-flags": {
         "bshaffer/oauth2-server-php": 20
@@ -280,7 +276,5 @@
     "platform": {
         "php": ">= 5.4.0"
     },
-    "platform-dev": [
-
-    ]
+    "platform-dev": []
 }

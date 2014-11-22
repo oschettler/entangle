@@ -67,6 +67,7 @@ if (!file_exists(preg_replace('/^sqlite:/', '', config('db.name')))) {
 
 ORM::configure(config('db.name'));
 ORM::configure('return_result_sets', TRUE);
+ORM::configure('logging', TRUE);
 
 if ($needs_init) {
   unset($_SESSION['user']);
@@ -137,7 +138,7 @@ on('GET', '/', function () {
   $events = ORM::for_table('event')
     ->select('event.*')
     ->select('location.title', 'location_title')
-    ->select('user.id', 'user_id')
+    ->select('user.id')
     ->select('user.realname', 'user_realname')
     ->left_outer_join('location', array('event.location_id', '=', 'location.id'))
     ->left_outer_join('timeline', array('event.timeline_id', '=', 'timeline.id'))
@@ -150,7 +151,7 @@ on('GET', '/', function () {
    * Make sure the logged-in user either has ID=1 or the events belong to her
    */
   if ($_SESSION['user']->id != 1) {
-    $events->where('user_id', $_SESSION['user']->id);
+    $events->where('user.id', $_SESSION['user']->id);
   }
 
   $vector = new TimeVector($events->find_result_set(), /*future*/TRUE);

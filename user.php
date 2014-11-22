@@ -112,7 +112,7 @@ on('GET', '/edit', function () {
     ->select('timeline.title', 'timeline_title')
     ->select('entangled.id', 'entangled_id')
     ->select('entangled.title', 'entangled_title')
-    ->select('entangled.user_id', 'user_id')
+    ->select('entangled.user_id')
     ->select('user.realname', 'user_realname')
     ->left_outer_join('timeline', array('entangled_timeline.timeline_id', '=', 'timeline.id'))
     ->left_outer_join('entangled', array('entangled_timeline.entangled_id', '=', 'entangled.id'))
@@ -121,7 +121,7 @@ on('GET', '/edit', function () {
 
   if ($_SESSION['user']->id != 1) {
      // not super-user
-     $displays->where_equal('user_id', $_SESSION['user']->id);
+     $displays->where_equal('entangled.user_id', $_SESSION['user']->id);
   }
 
   $locations = ORM::for_table('location')

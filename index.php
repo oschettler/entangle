@@ -17,7 +17,7 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
-const VERSION = '0.1.2';
+const VERSION = '0.1.4';
 const NO_COL = 3;
 const PAGE_SIZE = 20;
 
@@ -208,7 +208,7 @@ on('GET', '/:username', function () {
   }
 
   if (in_array('application/json', explode(',', $_SERVER["HTTP_ACCEPT"]))) {
-    echo json($events->find_array());
+    json($events->find_array());
     return;
   }
 

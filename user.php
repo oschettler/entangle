@@ -248,7 +248,7 @@ on('POST', '/add', function () {
 
   save_subscription($user);
 
-  json_out(array('success' => "Subscription created"));
+  json(array('success' => "Subscription created"));
 });
 
 /**
@@ -268,7 +268,7 @@ on('POST', '/edit_subscription', function () {
 
   save_subscription($user);
 
-  json_out(array('success' => "Subscription changed"));
+  json(array('success' => "Subscription changed"));
 });
 
 /**
@@ -297,7 +297,7 @@ on('POST', '/add_timeline', function () {
   $timeline->created = $now;
   $timeline->save();
 
-  json_out(array('success' => "Timeline added"));
+  json(array('success' => "Timeline added"));
 });
 
 /**
@@ -323,7 +323,7 @@ on('POST', '/del_timeline/:id', function () {
 
   $timeline->delete();
 
-  json_out(array('success' => "Timeline #{$id} deleted"));
+  json(array('success' => "Timeline #{$id} deleted"));
 });
 
 /**
@@ -360,7 +360,7 @@ on('POST', '/edit_timeline', function () {
   $timeline->updated = $now;
   $timeline->save();
 
-  json_out(array('success' => "Timeline changed"));
+  json(array('success' => "Timeline changed"));
 });
 
 /**
@@ -396,7 +396,7 @@ on('POST', '/add_display', function () {
     $timeline->save();
   }
 
-  json_out(array('success' => "Display added"));
+  json(array('success' => "Display added"));
 });
 
 /**
@@ -429,7 +429,7 @@ on('POST', '/del_display/:id', function () {
 
   $display->delete();
 
-  json_out(array('success' => "Display #{$id} deleted"));
+  json(array('success' => "Display #{$id} deleted"));
 });
 
 /**
@@ -476,7 +476,7 @@ on('POST', '/edit_display', function () {
     $timeline->save();
   }
 
-  json_out(array('success' => "Display changed"));
+  json(array('success' => "Display changed"));
 });
 
 /**
@@ -500,7 +500,7 @@ on('POST', '/add_location', function () {
   $location->created = $now;
   $location->save();
 
-  json_out(array('success' => "Location added"));
+  json(array('success' => "Location added"));
 
 });
 
@@ -525,7 +525,7 @@ on('POST', '/del_location/:id', function () {
 
   $location->delete();
 
-  json_out(array('success' => "Location #{$id} deleted"));
+  json(array('success' => "Location #{$id} deleted"));
 });
 
 /**
@@ -557,7 +557,7 @@ on('POST', '/edit_location', function () {
   $location->updated = $now;
   $location->save();
 
-  json_out(array('success' => "Location changed"));
+  json(array('success' => "Location changed"));
 });
 
 /**
@@ -739,5 +739,5 @@ on('POST', '/del/:id', function () {
 
   $user->delete();
 
-  json_out(array('success' => "{$type} #{$id} deleted"));
+  json(array('success' => "{$type} #{$id} deleted"));
 });

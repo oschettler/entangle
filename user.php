@@ -117,7 +117,9 @@ on('GET', '/edit', function () {
     ->left_outer_join('timeline', array('entangled_timeline.timeline_id', '=', 'timeline.id'))
     ->left_outer_join('entangled', array('entangled_timeline.entangled_id', '=', 'entangled.id'))
     ->left_outer_join('user', array('entangled.user_id', '=', 'user.id'))
-    ->order_by_asc('user.id', 'entangled.id', 'timeline.id');
+    ->order_by_asc('user.id')
+    ->order_by_asc('entangled.id')
+    ->order_by_asc('timeline.id');
 
   if ($_SESSION['user']->id != 1) {
      // not super-user
@@ -369,7 +371,7 @@ on('POST', '/edit_timeline', function () {
 on('POST', '/add_display', function () {
   $now = strftime('%Y-%m-%d %H:%M:%S');
 
-  $display = ORM::for_table('entangled_timeline')->create();
+  $display = ORM::for_table('entangled')->create();
 
   $fields = array('user_id', 'title');
   foreach ($fields as $field) {
@@ -409,7 +411,7 @@ on('POST', '/del_display/:id', function () {
     error(500, 'No display given');
   }
 
-  $display = ORM::for_table('entangled_timeline')->find_one($id);
+  $display = ORM::for_table('entangled')->find_one($id);
   if (!$display) {
     error(500, 'No such display');
   }
@@ -440,7 +442,7 @@ on('POST', '/edit_display', function () {
     error(500, 'No display given');
   }
 
-  $display = ORM::for_table('entangled_timeline')->find_one($_POST['id']);
+  $display = ORM::for_table('entangled')->find_one($_POST['id']);
   if (!$display) {
     error(500, 'No such display');
   }

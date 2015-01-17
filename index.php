@@ -98,6 +98,13 @@ function stack($name, $value = null) {
 prefix('/user', function () { include 'user.php'; });
 prefix('/event', function () { include 'event.php'; });
 
+/*
+ * Database logging for the super user
+ */
+if (session('user') && $_SESSION['user']->id == 1) {
+  ORM::configure('logging', true);
+}
+
 on('GET', '/', function () {
 
   if (!session('user')) {

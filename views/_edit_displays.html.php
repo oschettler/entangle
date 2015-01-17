@@ -33,10 +33,10 @@
   $entangled_id = NULL;
   foreach ($displays as $i => $d) {
     if ($entangled_id != $d->entangled_id) {
-      $entangled_id = $d->entangled_id;
       if ($i) {
-        close_display_row($d->entangled_id);
+        close_display_row($entangled_id);
       }
+      $entangled_id = $d->entangled_id;
       ?>
       <tr>
         <?php

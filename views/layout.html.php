@@ -61,6 +61,9 @@
     while ($footer = stack('footer')) {
       echo $footer;
     }
+    if (session('user') && $_SESSION['user']->id == 1) {
+      echo partial('footer_sql');
+    }
     ?>
     <div id="version"><a target="_new" href="https://entangle.de">v<?php echo VERSION; ?></a></div>
   </body>

@@ -87,7 +87,7 @@ jQuery(function () {
     $.getJSON('/event/' + event_id, function (event) {
       var $form = $('#event-form');
       $form.attr('action', '/event/edit');
-      $('#event-form h4.modal-title').text('Edit event');
+      $('#event-form h4.modal-title').text('Edit event #' + event.id);
 
       $('#event_id-field').val(event.id);
       $('#timeline_id-field').val(event.timeline_id);

@@ -75,6 +75,7 @@ jQuery(function () {
     $('#date_from-field').val('');
     $('#date_to-field').val('');
     $('#duration-field').val('');
+    $('#anniversary-field').val('');
 
     $('#edit-event').modal('show');
 

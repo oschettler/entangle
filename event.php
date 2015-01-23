@@ -34,6 +34,7 @@ function save_event($event) {
   $event->public = !empty($_POST['public']) && $_POST['public'] ? 1 : 0;
 
   $event->description = $_POST['description'];
+  $event->anniversary = $_POST['anniversary'];
   $event->date_from = $_POST['date_from'];
 
   $now = strftime('%Y-%m-%d %H:%M:%S');
@@ -93,7 +94,7 @@ function save_event($event) {
 
   try {
     if ($event->save()) {
-      echo json_encode(array('success' => 'Saved event #' . $event->id . ' "'
+      json(array('success' => 'Saved event #' . $event->id . ' "'
         . addslashes($event->title) . '"'));
       return;
     }

@@ -18,7 +18,7 @@
 
     <script src="//code.jquery.com/jquery-1.10.2.min.js"></script>
     <script src="//netdna.bootstrapcdn.com/bootstrap/3.1.1/js/bootstrap.min.js"></script>
-    <script src="//rawgithub.com/carhartl/jquery-cookie/master/jquery.cookie.js"></script>
+    <script src="//rawgit.com/carhartl/jquery-cookie/master/src/jquery.cookie.js"></script>
 
     <script type="text/javascript" src="/js/scripts.js"></script>
     <?php
@@ -60,6 +60,9 @@
     <?php
     while ($footer = stack('footer')) {
       echo $footer;
+    }
+    if (session('user') && $_SESSION['user']->id == 1) {
+      echo partial('footer_sql');
     }
     ?>
     <div id="version"><a target="_new" href="https://entangle.de">v<?php echo VERSION; ?></a></div>

@@ -117,7 +117,9 @@ on('GET', '/edit', function () {
     ->left_outer_join('timeline', array('entangled_timeline.timeline_id', '=', 'timeline.id'))
     ->left_outer_join('entangled', array('entangled_timeline.entangled_id', '=', 'entangled.id'))
     ->left_outer_join('user', array('entangled.user_id', '=', 'user.id'))
-    ->order_by_asc('user.id', 'entangled.id', 'timeline.id');
+    ->order_by_asc('user.id')
+    ->order_by_asc('entangled.id')
+    ->order_by_asc('timeline.id');
 
   if ($_SESSION['user']->id != 1) {
      // not super-user
@@ -248,7 +250,7 @@ on('POST', '/add', function () {
 
   save_subscription($user);
 
-  json_out(array('success' => "Subscription created"));
+  json(array('success' => "Subscription created"));
 });
 
 /**
@@ -268,7 +270,7 @@ on('POST', '/edit_subscription', function () {
 
   save_subscription($user);
 
-  json_out(array('success' => "Subscription changed"));
+  json(array('success' => "Subscription changed"));
 });
 
 /**
@@ -297,7 +299,7 @@ on('POST', '/add_timeline', function () {
   $timeline->created = $now;
   $timeline->save();
 
-  json_out(array('success' => "Timeline added"));
+  json(array('success' => "Timeline added"));
 });
 
 /**
@@ -323,7 +325,7 @@ on('POST', '/del_timeline/:id', function () {
 
   $timeline->delete();
 
-  json_out(array('success' => "Timeline #{$id} deleted"));
+  json(array('success' => "Timeline #{$id} deleted"));
 });
 
 /**
@@ -360,7 +362,7 @@ on('POST', '/edit_timeline', function () {
   $timeline->updated = $now;
   $timeline->save();
 
-  json_out(array('success' => "Timeline changed"));
+  json(array('success' => "Timeline changed"));
 });
 
 /**
@@ -369,7 +371,7 @@ on('POST', '/edit_timeline', function () {
 on('POST', '/add_display', function () {
   $now = strftime('%Y-%m-%d %H:%M:%S');
 
-  $display = ORM::for_table('display')->create();
+  $display = ORM::for_table('entangled')->create();
 
   $fields = array('user_id', 'title');
   foreach ($fields as $field) {
@@ -396,7 +398,7 @@ on('POST', '/add_display', function () {
     $timeline->save();
   }
 
-  json_out(array('success' => "Display added"));
+  json(array('success' => "Display added"));
 });
 
 /**
@@ -409,7 +411,7 @@ on('POST', '/del_display/:id', function () {
     error(500, 'No display given');
   }
 
-  $display = ORM::for_table('display')->find_one($id);
+  $display = ORM::for_table('entangled')->find_one($id);
   if (!$display) {
     error(500, 'No such display');
   }
@@ -429,7 +431,7 @@ on('POST', '/del_display/:id', function () {
 
   $display->delete();
 
-  json_out(array('success' => "Display #{$id} deleted"));
+  json(array('success' => "Display #{$id} deleted"));
 });
 
 /**
@@ -440,7 +442,7 @@ on('POST', '/edit_display', function () {
     error(500, 'No display given');
   }
 
-  $display = ORM::for_table('display')->find_one($_POST['id']);
+  $display = ORM::for_table('entangled')->find_one($_POST['id']);
   if (!$display) {
     error(500, 'No such display');
   }
@@ -476,7 +478,7 @@ on('POST', '/edit_display', function () {
     $timeline->save();
   }
 
-  json_out(array('success' => "Display changed"));
+  json(array('success' => "Display changed"));
 });
 
 /**
@@ -500,7 +502,7 @@ on('POST', '/add_location', function () {
   $location->created = $now;
   $location->save();
 
-  json_out(array('success' => "Location added"));
+  json(array('success' => "Location added"));
 
 });
 
@@ -525,7 +527,7 @@ on('POST', '/del_location/:id', function () {
 
   $location->delete();
 
-  json_out(array('success' => "Location #{$id} deleted"));
+  json(array('success' => "Location #{$id} deleted"));
 });
 
 /**
@@ -557,7 +559,7 @@ on('POST', '/edit_location', function () {
   $location->updated = $now;
   $location->save();
 
-  json_out(array('success' => "Location changed"));
+  json(array('success' => "Location changed"));
 });
 
 /**
@@ -739,5 +741,5 @@ on('POST', '/del/:id', function () {
 
   $user->delete();
 
-  json_out(array('success' => "{$type} #{$id} deleted"));
+  json(array('success' => "{$type} #{$id} deleted"));
 });

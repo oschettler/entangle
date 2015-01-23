@@ -17,7 +17,7 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
-const VERSION = '0.1.2';
+const VERSION = '0.1.4';
 const NO_COL = 3;
 const PAGE_SIZE = 20;
 
@@ -98,6 +98,13 @@ function stack($name, $value = null) {
 
 prefix('/user', function () { include 'user.php'; });
 prefix('/event', function () { include 'event.php'; });
+
+/*
+ * Database logging for the super user
+ */
+if (session('user') && $_SESSION['user']->id == 1) {
+  ORM::configure('logging', true);
+}
 
 on('GET', '/', function () {
 
@@ -209,7 +216,7 @@ on('GET', '/:username', function () {
   }
 
   if (in_array('application/json', explode(',', $_SERVER["HTTP_ACCEPT"]))) {
-    echo json($events->find_array());
+    json($events->find_array());
     return;
   }
 

@@ -75,6 +75,7 @@ jQuery(function () {
     $('#date_from-field').val('');
     $('#date_to-field').val('');
     $('#duration-field').val('');
+    $('#anniversary-field').val('');
 
     $('#edit-event').modal('show');
 
@@ -87,7 +88,7 @@ jQuery(function () {
     $.getJSON('/event/' + event_id, function (event) {
       var $form = $('#event-form');
       $form.attr('action', '/event/edit');
-      $('#event-form h4.modal-title').text('Edit event');
+      $('#event-form h4.modal-title').text('Edit event #' + event.id);
 
       $('#event_id-field').val(event.id);
       $('#timeline_id-field').val(event.timeline_id);

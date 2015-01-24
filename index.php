@@ -219,7 +219,9 @@ on('GET', '/:username', function () {
     return;
   }
 
-  $points = points($events->find_result_set());
+  $vector = new TimeVector($events->find_result_set(), /*future*/TRUE);
+  $points = $vector->points();
+  
   if (0 == count($points->timelines)) {
     // Pointless to render anything if there are no timelines with public events
     error(500, "No public events");

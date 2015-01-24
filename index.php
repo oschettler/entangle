@@ -30,8 +30,12 @@ session_set_cookie_params(86400 * 7);
 session_start();
 
 require_once 'vendor/autoload.php';
+
 use Entangle\DateTime;
 use Entangle\TimeVector;
+
+use Granada\ORM;
+use Granada\Model;
 
 config('dispatch.views', 'views');
 
@@ -67,7 +71,7 @@ if (!file_exists(preg_replace('/^sqlite:/', '', config('db.name')))) {
 
 ORM::configure(config('db.name'));
 ORM::configure('return_result_sets', TRUE);
-ORM::configure('logging', TRUE);
+Model::$auto_prefix_models = '\\Model\\';
 
 if ($needs_init) {
   unset($_SESSION['user']);
@@ -114,14 +118,14 @@ on('GET', '/', function () {
     ));
   }
 
-  $entangled = ORM::for_table('entangled')
+  $entangled = Model::factory('Entangled')
     ->where_equal('user_id', $_SESSION['user']->id)
     ->where_equal('title', 'Start')
     ->find_one();
 
   $timelines = array();
   $event_timelines = array();
-  foreach (ORM::for_table('entangled_timeline')
+  foreach (Model::factory('EntangledTimeline')
     ->left_outer_join('timeline', array('entangled_timeline.timeline_id', '=', 'timeline.id'))
     ->where_equal('entangled_timeline.entangled_id', $entangled->id)
     ->find_many() as $timeline) {
@@ -142,7 +146,7 @@ on('GET', '/', function () {
     }
   }
 
-  $events = ORM::for_table('event')
+  $events = Model::factory('Event')
     ->select('event.*')
     ->select('location.title', 'location_title')
     ->select('user.id')
@@ -164,7 +168,7 @@ on('GET', '/', function () {
   $vector = new TimeVector($events->find_result_set(), /*future*/TRUE);
   $points = $vector->points();
 
-  $named_timelines = ORM::for_table('timeline')
+  $named_timelines = Model::factory('Timeline')
   	->select_many('timeline.id', 'timeline.user_id', 'timeline.title', 'timeline.timelines')
     ->select('user.realname', 'user_realname')
     ->left_outer_join('user', array('timeline.user_id', '=', 'user.id'))
@@ -194,7 +198,7 @@ on('GET', '/:username', function () {
     error(500, 'No such user');
   }
 
-  $events = ORM::for_table('event')
+  $events = Model::factory('Event')
     ->select('event.*')
     ->select('location.title', 'location_title')
     ->select('location.longitude', 'location_longitude')
@@ -229,7 +233,7 @@ on('GET', '/:username', function () {
 
     stack('footer', partial('footer_login'));
 
-    $timelines = ORM::for_table('timeline')
+    $timelines = Model::factory('Timeline')
     	->select_many('id', 'title')
       ->where_in('id', $points->timelines)
       ->order_by_asc('title')

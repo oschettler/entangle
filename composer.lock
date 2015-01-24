@@ -4,7 +4,7 @@
         "Read more about it at http://getcomposer.org/doc/01-basic-usage.md#composer-lock-the-lock-file",
         "This file is @generated automatically"
     ],
-    "hash": "431c0f8bca98b6346ead5cdddea66a82",
+    "hash": "b45fa355d661cda7c20c5f9eff00fb2e",
     "packages": [
         {
             "name": "bshaffer/oauth2-server-php",
@@ -12,12 +12,12 @@
             "source": {
                 "type": "git",
                 "url": "https://github.com/bshaffer/oauth2-server-php.git",
-                "reference": "e30f26d780030fd818ec8da9776e0e10f13cc9f8"
+                "reference": "bb254d3352aade23fcdf29e36399b51e485b072a"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/bshaffer/oauth2-server-php/zipball/e30f26d780030fd818ec8da9776e0e10f13cc9f8",
-                "reference": "e30f26d780030fd818ec8da9776e0e10f13cc9f8",
+                "url": "https://api.github.com/repos/bshaffer/oauth2-server-php/zipball/bb254d3352aade23fcdf29e36399b51e485b072a",
+                "reference": "bb254d3352aade23fcdf29e36399b51e485b072a",
                 "shasum": ""
             },
             "require": {
@@ -52,7 +52,7 @@
                 "oauth",
                 "oauth2"
             ],
-            "time": "2014-11-04 18:58:21"
+            "time": "2015-01-19 22:57:38"
         },
         {
             "name": "dispatch/dispatch",
@@ -218,52 +218,53 @@
             "time": "2014-06-23 13:08:57"
         },
         {
-            "name": "phptal/phptal",
-            "version": "1.3.0",
+            "name": "surt/granada",
+            "version": "1.5.2",
             "source": {
                 "type": "git",
-                "url": "https://github.com/pornel/PHPTAL.git",
-                "reference": "090948f2c4756a068530fe648743b1849d1c51cd"
+                "url": "https://github.com/Surt/Granada.git",
+                "reference": "60a311e40c07addf11893fe42843c4f4a6c44d8c"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/pornel/PHPTAL/zipball/090948f2c4756a068530fe648743b1849d1c51cd",
-                "reference": "090948f2c4756a068530fe648743b1849d1c51cd",
+                "url": "https://api.github.com/repos/Surt/Granada/zipball/60a311e40c07addf11893fe42843c4f4a6c44d8c",
+                "reference": "60a311e40c07addf11893fe42843c4f4a6c44d8c",
                 "shasum": ""
             },
             "require": {
-                "php": ">=5.1.2"
+                "php": ">=5.3.0"
             },
             "type": "library",
             "autoload": {
                 "psr-0": {
-                    "PHPTAL": "classes/"
+                    "Granada": "src/"
                 }
             },
             "notification-url": "https://packagist.org/downloads/",
             "license": [
-                "LGPL-2.1+"
+                "BSD-2-Clause",
+                "BSD-3-Clause",
+                "BSD-4-Clause"
             ],
             "authors": [
                 {
-                    "name": "Laurent Bédubourg",
-                    "email": "lbedubourg@motion-twin.com",
-                    "homepage": "http://labe.me"
-                },
-                {
-                    "name": "Kornel Lesiński",
-                    "email": "kornel@geekhood.net",
-                    "homepage": "http://pornel.net/"
+                    "name": "Erik Wiesenthal",
+                    "email": "erikforo@hotmail.com",
+                    "homepage": "http://www.codetogether.es",
+                    "role": "Developer"
                 }
             ],
-            "description": "PHPTAL is a templating engine for PHP5 that implements Zope Page Templates syntax",
-            "homepage": "http://phptal.org/",
+            "description": "Active Record / ORM with eager loading, lazy loading and more",
+            "homepage": "https://github.com/Surt/Granada",
             "keywords": [
-                "phptal",
-                "template engine",
-                "zope"
+                "Active Record",
+                "database",
+                "eager-loading",
+                "idiorm",
+                "orm",
+                "paris"
             ],
-            "time": "2014-03-15 19:29:30"
+            "time": "2013-11-10 12:46:30"
         }
     ],
     "packages-dev": [],
@@ -273,6 +274,7 @@
         "bshaffer/oauth2-server-php": 20
     },
     "prefer-stable": false,
+    "prefer-lowest": false,
     "platform": {
         "php": ">= 5.4.0"
     },

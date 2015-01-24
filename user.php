@@ -18,6 +18,8 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
+use Granada\Model;
+
 /**
  * For the /user prefix, only /login and /register may be used anonymously
  */
@@ -40,7 +42,7 @@ on('POST', '/login', function () {
     redirect('/');
   }
 
-  $user = ORM::for_table('user')
+  $user = Model::factory('User')
     ->where_equal('username', $_POST['username'])
     ->where_equal('password', md5($_POST['password']))
     ->find_one();

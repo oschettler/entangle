@@ -47,7 +47,8 @@ App::bootstrap();
 prefix('/user', function () { include 'user.php'; });
 prefix('/event', function () { include 'event.php'; });
 
-on('GET', '/', function () {
+on('GET', '/', function ()
+{
   $controller = new EntangledController;
 
   if (!session('user')) {
@@ -61,8 +62,8 @@ on('GET', '/_i', function () { phpinfo(); });
 
 prefix('/alert', function () { include 'pushover.php'; });
 
-on('GET', '/:username', function () {
-
+on('GET', '/:username', function ()
+{
   $controller = new UserController;
   return $controller->timeline();
 });

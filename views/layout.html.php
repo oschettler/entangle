@@ -60,7 +60,7 @@ use Entangle\App;
     </div>
 
     <?php
-    while ($footer = stack('footer')) {
+    while ($footer = App::stack('footer')) {
       echo $footer;
     }
     if (session('user') && $_SESSION['user']->id == 1) {

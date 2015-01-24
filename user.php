@@ -19,6 +19,7 @@
  */
 
 use Granada\Model;
+use Entangle\App;
 
 /**
  * For the /user prefix, only /login and /register may be used anonymously
@@ -75,7 +76,7 @@ on('GET', '/logout', function () {
  * Get a form to register a new user
  */
 on('GET', 'register', function () {
-  stack('styles', 'edit');
+  App::stack('styles', 'edit');
 
   render('register', array(
     'page_title' => 'Register account',

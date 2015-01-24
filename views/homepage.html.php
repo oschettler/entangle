@@ -1,5 +1,7 @@
 <?php
-stack('footer', partial('footer_login'));
+use Entangle\App;
+
+App::stack('footer', partial('footer_login'));
 ?>
 <div class="jumbotron">
   <h1><?php echo $page_title; ?></h1>

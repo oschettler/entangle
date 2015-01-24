@@ -37,7 +37,7 @@
       <td class="timelines-val"><?php echo $tl->timelines; ?></td>
       <td class="action">
         <a href="#" class="edit edit-timeline" data-id="<?php echo $tl->id; ?>"><span class="glyphicon glyphicon-edit"></span></a>
-        <a href="/user/del_timeline/<?php echo $tl->id; ?>" class="del del-timeline" data-title="Timeline #<?php echo $tl->id; ?>"><span class="glyphicon glyphicon-trash"></span></a>
+        <a href="/timeline/del/<?php echo $tl->id; ?>" class="del del-timeline" data-title="Timeline #<?php echo $tl->id; ?>"><span class="glyphicon glyphicon-trash"></span></a>
       </td>
     </tr>
     <?php
@@ -48,7 +48,7 @@
 
 <!-- Modal: edit-timeline -->
 <div class="modal fade" id="edit-timeline" tabindex="-1" role="dialog" aria-labelledby="timelineLabel" aria-hidden="true">
-  <form method="POST" id="timeline-form" action="/user/edit_timeline" role="form" class="modal-dialog edit-"><input id="tl-id-field" name="id" type="hidden">
+  <form method="POST" id="timeline-form" action="/timeline/edit" role="form" class="modal-dialog edit-"><input id="tl-id-field" name="id" type="hidden">
 
     <div class="modal-content">
       <div class="modal-header">

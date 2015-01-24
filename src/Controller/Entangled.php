@@ -80,4 +80,123 @@ class Entangled
 			'point_count' => $points->count,
 		));
 	}
+
+	/**
+	 * Add a display
+	 */
+	public function add()
+	{
+		$now = strftime('%Y-%m-%d %H:%M:%S');
+
+		$display = Model::factory('Entangled')->create();
+
+		$fields = array('user_id', 'title');
+		foreach ($fields as $field) {
+			if (empty($_POST[$field])) {
+				error(500, 'All fields are required');
+			}
+			$display->{$field} = $_POST[$field];
+		}
+
+		if ($_SESSION['user']->id != 1 // only super-user
+		    && $_SESSION['user']->id != $display->user_id) { // not self
+
+			error(500, 'Not allowed');
+		}
+
+		$display->created = $now;
+		$display->save();
+
+		foreach (explode(',', $_POST['timelines']) as $tl_id) {
+			$timeline = ORM::for_table('entangled_timeline')->create();
+			$timeline->entangled_id = $display->id;
+			$timeline->timeline_id = intval($tl_id);
+			$timeline->created = $now;
+			$timeline->save();
+		}
+
+		json(array('success' => "Display added"));
+	}
+
+	/**
+	 * Delete a display
+	 */
+	public function del()
+	{
+		$id = params('id');
+
+		if (empty($id)) {
+			error(500, 'No display given');
+		}
+
+		$display = Model::factory('Entangled')->find_one($id);
+		if (!$display) {
+			error(500, 'No such display');
+		}
+
+		if ($_SESSION['user']->id != 1 // only super-user
+		    && $_SESSION['user']->id != $display->user_id) { // not self
+
+			error(500, 'Not allowed');
+		}
+
+		$timelines = Model::factory('EntangledTimeline')
+			->where_equal('entangled_id', $id)
+			->find_many();
+		foreach ($timelines as $tl) {
+			$tl->delete();
+		}
+
+		$display->delete();
+
+		json(array('success' => "Display #{$id} deleted"));
+	}
+
+	/**
+	 * Edit a display
+	 */
+	public function edit()
+	{
+		if (empty($_POST['id'])) {
+			error(500, 'No display given');
+		}
+
+		$display = Model::factory('Entangled')->find_one($_POST['id']);
+		if (!$display) {
+			error(500, 'No such display');
+		}
+
+		$now = strftime('%Y-%m-%d %H:%M:%S');
+
+		$fields = array('user_id', 'title');
+		foreach ($fields as $field) {
+			if (empty($_POST[$field])) {
+				error(500, 'All fields are required');
+			}
+			$display->{$field} = $_POST[$field];
+		}
+
+		if ($_SESSION['user']->id != 1 // only super-user
+		    && $_SESSION['user']->id != $display->user_id) { // not self
+
+			error(500, 'Not allowed');
+		}
+
+		$display->created = $now;
+		$display->save();
+
+		$timelines = Model::factory('EntangledTimeline')
+			->where_equal('entangled_id', $_POST['id'])
+			->delete_many();
+
+		foreach (explode(',', $_POST['timelines']) as $tl_id) {
+			$timeline = Model::factory('EntangledTimeline')->create();
+			$timeline->entangled_id = $display->id;
+			$timeline->timeline_id = intval($tl_id);
+			$timeline->created = $now;
+			$timeline->save();
+		}
+
+		json(array('success' => "Display changed"));
+	}
 }

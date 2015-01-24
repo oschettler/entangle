@@ -1,7 +1,9 @@
 <?php 
-stack('styles', 'edit'); 
-stack('scripts', 'edit');
-stack('footer', partial('footer_edit'));
+use Entangle\App;
+
+App::stack('styles', 'edit');
+App::stack('scripts', 'edit');
+App::stack('footer', partial('footer_edit'));
 ?>
 
 <h1><?php echo $page_title; ?></h1>

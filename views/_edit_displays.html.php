@@ -24,7 +24,7 @@
       </ul></td>
       <td class="action">
         <a href="#" class="edit edit-display" data-id="<?php echo $entangled_id; ?>"><span class="glyphicon glyphicon-edit"></span></a>
-        <a href="/user/del_display/<?php echo $entangled_id; ?>" class="del del-display" data-title="Display #<?php echo $entangled_id; ?>"><span class="glyphicon glyphicon-trash"></span></a>
+        <a href="/display/del/<?php echo $entangled_id; ?>" class="del del-display" data-title="Display #<?php echo $entangled_id; ?>"><span class="glyphicon glyphicon-trash"></span></a>
       </td>
     </tr>
     <?php
@@ -61,7 +61,7 @@
 
 <!-- Modal: edit-display -->
 <div class="modal fade" id="edit-display" tabindex="-1" role="dialog" aria-labelledby="displayLabel" aria-hidden="true">
-  <form method="POST" id="display-form" action="/user/edit_display" role="form" class="modal-dialog edit-"><input id="dis-id-field" name="id" type="hidden">
+  <form method="POST" id="display-form" action="/display/edit" role="form" class="modal-dialog edit-"><input id="dis-id-field" name="id" type="hidden">
 
     <div class="modal-content">
       <div class="modal-header">

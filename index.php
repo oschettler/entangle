@@ -39,6 +39,8 @@ use Controller\Entangled as EntangledController;
 use Granada\ORM;
 use Granada\Model;
 
+use Entangle\App;
+
 config('dispatch.views', 'views');
 
 $here = dirname(__FILE__) . '/..';
@@ -83,23 +85,6 @@ if ($needs_init) {
   }
   flash('success', 'Database has been set up. Now register your account');
   redirect('/user/register');
-}
-
-/**
- * Similar to dispatch.scope, but keep values as stack
- */
-function stack($name, $value = null) {
-
-  static $_stash = array();
-
-  if ($value === null) {
-    return isset($_stash[$name]) ? array_pop($_stash[$name]) : NULL;
-  }
-
-  if (!isset($_stash[$name])) {
-    $_stash[$name] = array();
-  }
-  return array_push($_stash[$name], $value);
 }
 
 prefix('/user', function () { include 'user.php'; });
@@ -169,7 +154,7 @@ on('GET', '/:username', function () {
   }
   else {
 
-    stack('footer', partial('footer_login'));
+    App::stack('footer', partial('footer_login'));
 
     $timelines = Model::factory('Timeline')
     	->select_many('id', 'title')

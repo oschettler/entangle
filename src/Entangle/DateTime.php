@@ -1,6 +1,4 @@
-<?php
-
-namespace Entangle;
+<?php namespace Entangle;
 
 /**
  * Wrapper for the built-in DateTime

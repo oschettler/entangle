@@ -1,4 +1,6 @@
-<!DOCTYPE html>
+<?php
+use Entangle\App;
+?><!DOCTYPE html>
 <html lang="en">
   <head>
     <meta charset="utf-8">
@@ -9,7 +11,7 @@
     <link rel="stylesheet" href="/css/styles.css">
     <link href="//netdna.bootstrapcdn.com/font-awesome/3.2.1/css/font-awesome.css" rel="stylesheet">
     <?php
-    while ($style = stack('styles')) {
+    while ($style = App::stack('styles')) {
       ?>
       <link href="/css/<?php echo $style; ?>.css" rel="stylesheet">
       <?php
@@ -22,7 +24,7 @@
 
     <script type="text/javascript" src="/js/scripts.js"></script>
     <?php
-    while ($script = stack('scripts')) {
+    while ($script = App::stack('scripts')) {
       if (strpos($script, '//') !== 0) {
         $script = "/js/{$script}.js";
       }

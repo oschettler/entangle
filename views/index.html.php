@@ -1,10 +1,12 @@
-<?php 
-stack('styles', 'timelines'); 
-stack('scripts', 'timelines');
+<?php
+use Entangle\App;
+
+App::stack('styles', 'timelines');
+App::stack('scripts', 'timelines');
 //stack('scripts', '//rawgithub.com/markmalek/Fixed-Header-Table/master/jquery.fixedheadertable.min.js');
 
 if (!empty($named_timelines)) {
-  stack('footer', partial('footer_event', array('named_timelines' => $named_timelines)));
+  App::stack('footer', partial('footer_event', array('named_timelines' => $named_timelines)));
 }
 ?>
 

@@ -49,12 +49,12 @@ if (!empty($named_timelines)) {
           <?php
           if ($point->type == 'to') {
             ?>
-            <span class="date-end" id="dates-<?php echo $i+1; ?>" x-id="<?php echo $event->id; ?>"><?php echo empty($event->date_to) ? $ts : $event->date_to, '<br>(seit ', $event->date_from, ')'; ?></span>
+            <span class="date-end" id="dates-<?php echo $i+1; ?>" x-id="<?php echo $event->event_id; ?>"><?php echo empty($event->date_to) ? $ts : $event->date_to, '<br>(seit ', $event->date_from, ')'; ?></span>
             <?php
           }
           else {
             ?>
-            <span class="date-<?php echo $point->type; ?>" id="dates-<?php echo $i+1; ?>" x-id="<?php echo $event->id; ?>"><?php echo $point->type == 'anniversary' ? $ts : $event->date_from; ?></span>
+            <span class="date-<?php echo $point->type; ?>" id="dates-<?php echo $i+1; ?>" x-id="<?php echo $event->event_id; ?>"><?php echo $point->type == 'anniversary' ? $ts : $event->date_from; ?></span>
             <?php
             if (!empty($event->duration)) {
               if (!($event->duration == 1 && $event->duration_unit == 'd')) {
@@ -132,7 +132,7 @@ if (!empty($named_timelines)) {
         if (!empty($named_timelines)):
           ?>
           <td class="action">
-            <a href="#" class="edit edit-event" data-id="<?php echo $event->id; ?>"><span class="glyphicon glyphicon-edit"></span></a>
+            <a href="#" class="edit edit-event" data-id="<?php echo $event->event_id; ?>"><span class="glyphicon glyphicon-edit"></span></a>
           </td>
           <?php
         endif;

@@ -10,7 +10,7 @@ class Event
 		if (!$_SESSION['user']) {
 			error(500, 'Not logged in');
 		}
-		$event = Model::factory('Event')
+		$event = ORM::for_table('event')
 			->where('event.id', params('id'))
 			->select('event.*')
 			->select('location.title', 'location_title')

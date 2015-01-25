@@ -11,7 +11,7 @@ class Location {
 	{
 		$now = strftime( '%Y-%m-%d %H:%M:%S' );
 
-		$location = Model::factory('Location')->create();
+		$location = ORM::for_table('location')->create();
 
 		$fields = array( 'title' );
 		foreach ( $fields as $field ) {
@@ -45,7 +45,7 @@ class Location {
 			error( 500, 'No location given' );
 		}
 
-		$location = Model::factory('Location')->find_one( $id );
+		$location = ORM::for_table('location')->find_one( $id );
 		if ( ! $location ) {
 			error( 500, 'No such location' );
 		}
@@ -64,7 +64,7 @@ class Location {
 			error(500, 'No location given');
 		}
 
-		$location = Model::factory('Location')->find_one($_POST['id']);
+		$location = ORM::for_table('location')->find_one($_POST['id']);
 		if (!$location) {
 			error(500, 'No such location');
 		}

@@ -50,7 +50,7 @@ prefix('/user', function ()
 {
   $controller = new UserController;
 
-  before(function ($method, $path) use ($controller) { return $controller->before(); });
+  before(function ($method, $path) use ($controller) { return $controller->before($method, $path); });
 
   on('POST', '/login', function () use ($controller) { return $controller->login(); });
   on('GET', '/logout', function () use ($controller) { return $controller->logout(); });

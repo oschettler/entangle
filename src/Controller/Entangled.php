@@ -1,5 +1,6 @@
 <?php namespace Controller;
 
+use Granada\ORM;
 use Granada\Model;
 use Entangle\TimeVector;
 
@@ -15,14 +16,14 @@ class Entangled
 
 	public function timelines()
 	{
-		$entangled = Model::factory('Entangled')
+		$entangled = ORM::for_table('entangled')
 			->where_equal('user_id', $_SESSION['user']->id)
 			->where_equal('title', 'Start')
 			->find_one();
 
 		$timelines = array();
 		$event_timelines = array();
-		foreach (Model::factory('EntangledTimeline')
+		foreach (ORM::for_table('entangled_timeline')
 			->left_outer_join('timeline', array('entangled_timeline.timeline_id', '=', 'timeline.id'))
 			->where_equal('entangled_timeline.entangled_id', $entangled->id)
 			->find_many() as $timeline) {
@@ -43,7 +44,8 @@ class Entangled
 			}
 		}
 
-		$events = Model::factory('Event')
+		$events = ORM::for_table('event')
+			->select('event.id', 'event_id')
 			->select('event.*')
 			->select('location.title', 'location_title')
 			->select('user.id')
@@ -65,7 +67,7 @@ class Entangled
 		$vector = new TimeVector($events->find_result_set(), /*future*/TRUE);
 		$points = $vector->points();
 
-		$named_timelines = Model::factory('Timeline')
+		$named_timelines = ORM::for_table('timeline')
 			->select_many('timeline.id', 'timeline.user_id', 'timeline.title', 'timeline.timelines')
 			->select('user.realname', 'user_realname')
 			->left_outer_join('user', array('timeline.user_id', '=', 'user.id'))
@@ -88,7 +90,7 @@ class Entangled
 	{
 		$now = strftime('%Y-%m-%d %H:%M:%S');
 
-		$display = Model::factory('Entangled')->create();
+		$display = ORM::for_table('entangled')->create();
 
 		$fields = array('user_id', 'title');
 		foreach ($fields as $field) {
@@ -129,7 +131,7 @@ class Entangled
 			error(500, 'No display given');
 		}
 
-		$display = Model::factory('Entangled')->find_one($id);
+		$display = ORM::for_table('entangled')->find_one($id);
 		if (!$display) {
 			error(500, 'No such display');
 		}
@@ -140,7 +142,7 @@ class Entangled
 			error(500, 'Not allowed');
 		}
 
-		$timelines = Model::factory('EntangledTimeline')
+		$timelines = ORM::for_table('entangled_timeline')
 			->where_equal('entangled_id', $id)
 			->find_many();
 		foreach ($timelines as $tl) {
@@ -161,7 +163,7 @@ class Entangled
 			error(500, 'No display given');
 		}
 
-		$display = Model::factory('Entangled')->find_one($_POST['id']);
+		$display = ORM::for_table('entangled')->find_one($_POST['id']);
 		if (!$display) {
 			error(500, 'No such display');
 		}
@@ -185,12 +187,12 @@ class Entangled
 		$display->created = $now;
 		$display->save();
 
-		$timelines = Model::factory('EntangledTimeline')
+		$timelines = ORM::for_table('entangled_timeline')
 			->where_equal('entangled_id', $_POST['id'])
 			->delete_many();
 
 		foreach (explode(',', $_POST['timelines']) as $tl_id) {
-			$timeline = Model::factory('EntangledTimeline')->create();
+			$timeline = ORM::for_table('entangled_timeline')->create();
 			$timeline->entangled_id = $display->id;
 			$timeline->timeline_id = intval($tl_id);
 			$timeline->created = $now;

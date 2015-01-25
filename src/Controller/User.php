@@ -10,7 +10,7 @@ class User
 	/**
 	 * For the /user prefix, only /login and /register may be used anonymously
 	 */
-	public function before()
+	public function before($method, $path)
 	{
 		if (strpos($path, '/user') === 0
 		    && !in_array($path, array('/user/login', '/user/register'))
@@ -23,7 +23,7 @@ class User
 
 	public function timeline()
 	{
-		$user = Model::factory('User')
+		$user = ORM::for_table('user')
 			->where('username', params('username'))
 			->find_one();
 
@@ -31,7 +31,7 @@ class User
 			error(500, 'No such user');
 		}
 
-		$events = Model::factory('Event')
+		$events = ORM::for_table('event')
 			->select('event.*')
 			->select('location.title', 'location_title')
 			->select('location.longitude', 'location_longitude')
@@ -68,7 +68,7 @@ class User
 
 			App::stack('footer', partial('footer_login'));
 
-			$timelines = Model::factory('Timeline')
+			$timelines = ORM::for_table('timeline')
 				->select_many('id', 'title')
 				->where_in('id', $points->timelines)
 				->order_by_asc('title')
@@ -94,7 +94,7 @@ class User
 			redirect('/');
 		}
 
-		$user = Model::factory('User')
+		$user = ORM::for_table('user')
 		             ->where_equal('username', $_POST['username'])
 		             ->where_equal('password', md5($_POST['password']))
 		             ->find_one();
@@ -236,7 +236,7 @@ class User
 			error(500, 'No id given');
 		}
 
-		$user = Model::factory('User')
+		$user = ORM::for_table('user')
 		           ->find_one($_POST['id']);
 
 		if (!$user) {
@@ -253,7 +253,7 @@ class User
 	 */
 	public function addSubscription()
 	{
-		$user = Model::factory('User')->create();
+		$user = ORM::for_table('user')->create();
 
 		$this->saveSubscription($user);
 
@@ -292,13 +292,13 @@ class User
 	 */
 	public function register()
 	{
-		$user = Model::factory('User')->create();
+		$user = ORM::for_table('user')->create();
 
 		$user_id = save_user($user, '/user/register');
 
 		$now = strftime('%Y-%m-%d %H:%M:%S');
 
-		$timeline = Model::factory('Timeline')->create(array(
+		$timeline = ORM::for_table('timeline')->create(array(
 			'user_id' => $user_id,
 			'name' => 'life',
 			'title' => 'Leben',
@@ -306,7 +306,7 @@ class User
 		));
 		$timeline->save();
 
-		$event = Model::factory('Event')->create(array(
+		$event = ORM::for_table('event')->create(array(
 			'timeline_id' => $timeline->id,
 			'title' => 'Nutzerkonto angelegt',
 			'date_from' => strftime('%Y-%m-%d'),
@@ -317,14 +317,14 @@ class User
 		));
 		$event->save();
 
-		$entangled = Model::factory('Entangled')->create(array(
+		$entangled = ORM::for_table('entangled')->create(array(
 			'user_id' => $user_id,
 			'title' => 'Start',
 			'created' => $now
 		));
 		$entangled->save();
 
-		$entangled_timeline = Model::factory('EntangledTimeline')->create(array(
+		$entangled_timeline = ORM::for_table('entangled_timeline')->create(array(
 			'entangled_id' => $entangled->id,
 			'timeline_id' => $timeline->id,
 			'created' => $now,
@@ -408,7 +408,7 @@ class User
 
 		$user_id = params('user_id');
 
-		$user = Model::factory('User')->find_one($user_id);
+		$user = ORM::for_table('user')->find_one($user_id);
 		if (!$user || empty($user->source_url)) {
 			error(500, 'No such user');
 		}
@@ -420,13 +420,13 @@ class User
 
 		foreach ($events as $remote_event) {
 
-			$timeline = Model::factory('Timeline')
+			$timeline = ORM::for_table('timeline')
 			               ->where('name', $remote_event->timeline_name)
 			               ->where('user_id', $user->id)
 			               ->find_one();
 
 			if (!$timeline) {
-				$timeline = Model::factory('Timeline')->create(array(
+				$timeline = ORM::for_table('timeline')->create(array(
 					'user_id' => $user_id,
 					'name' => $remote_event->timeline_name,
 					'title' => $remote_event->timeline_title,
@@ -437,7 +437,7 @@ class User
 			}
 
 			if (!empty($remote_event->location_title)) {
-				$location = Model::factory('Location')
+				$location = ORM::for_table('location')
 				               ->where('title', $remote_event->location_title)
 				               ->find_one();
 
@@ -458,7 +458,7 @@ class User
 				$location_id = NULL;
 			}
 
-			$event = Model::factory('Event')
+			$event = ORM::for_table('event')
 			            ->where('source_id', $remote_event->id)
 			            ->where('timeline_id', $timeline->id)
 			            ->find_one();
@@ -511,7 +511,7 @@ class User
 			error(500, 'Not allowed');
 		}
 
-		$user = Model::factory('User')->find_one($id);
+		$user = ORM::for_table('user')->find_one($id);
 
 		$type = empty($user->source_url) ? 'User' : 'Subscription';
 

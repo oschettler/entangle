@@ -12,7 +12,7 @@ class Timeline
 	{
 		$now = strftime('%Y-%m-%d %H:%M:%S');
 
-		$timeline = Model::factory('Timeline')->create();
+		$timeline = ORM::for_table('timeline')->create();
 
 		$fields = array('user_id', 'name', 'title');
 		foreach ($fields as $field) {
@@ -47,7 +47,7 @@ class Timeline
 			error(500, 'No timeline given');
 		}
 
-		$timeline = Model::factory('Timeline')->find_one($id);
+		$timeline = ORM::for_table('timeline')->find_one($id);
 		if (!$timeline) {
 			error(500, 'No such timeline');
 		}
@@ -73,7 +73,7 @@ class Timeline
 			error(500, 'No timeline given');
 		}
 
-		$timeline = Model::factory('Timeline')->find_one($_POST['id']);
+		$timeline = ORM::for_table('timeline')->find_one($_POST['id']);
 		if (!$timeline) {
 			error(500, 'No such timeline');
 		}

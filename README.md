@@ -72,3 +72,5 @@ Point your web server at http://your-server:1111/
 
     <img src="https://www.evernote.com/shard/s1/sh/3be0f356-03c3-4dba-9cc0-d7d98f2e5133/6290fac600959fd7111edef8492ef3b7/deep/0/entangle!----Start.png">
 
+----
+Now deployed with https://ploy.rocks

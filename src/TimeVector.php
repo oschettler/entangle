@@ -2,11 +2,15 @@
 
 namespace Entangle;
 
+use Auth;
+
 class TimeVector
 {
   private $timelines = array();
   private $points = array();
   private $point_count = 0;
+  
+  public $future = false;
 
   /**
    * Add a single point to the $points vector
@@ -135,8 +139,10 @@ class TimeVector
      * If we show anniversaries one year into the future,
      * mark TODAY with a special event
      */
-    if ($this->future) {
+    $user = isset($_SESSION['user']) ? $_SESSION['user'] : null;
+    if ($user && $this->future) {
       $today = strftime('%Y-%m-%d');
+      
       $this->addPoint($today,
         'now',
         (object)array(
@@ -146,7 +152,7 @@ class TimeVector
           'date_from' => $today,
           'duration' => 1,
           'duration_unit' => 'd',
-          'user_id' => $_SESSION['user']->id,
+          'user_id' => $user->id,
         ),
         '<strong>Heute</strong>'
       );
@@ -160,7 +166,7 @@ class TimeVector
        * Calculate anniversaries
        */
 
-      if (!empty($event->anniversary)) {
+      if ($user && !empty($event->anniversary)) {
         if ($this->future) {
           // Show anniversaries one year into the future
           $next_year = (new DateTime('NOW'))->add(new \DateInterval('P1Y'));

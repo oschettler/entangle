@@ -17,7 +17,7 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
-const VERSION = '0.1.4';
+const VERSION = '0.1.5';
 const NO_COL = 3;
 const PAGE_SIZE = 20;
 
